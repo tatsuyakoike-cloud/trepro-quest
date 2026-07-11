@@ -7,17 +7,14 @@ import { LoginPage } from './pages/LoginPage'
 import { HomePage } from './pages/HomePage'
 import { MemberQuestPage } from './pages/MemberQuestPage'
 import { AdminPage } from './pages/AdminPage'
+import { LoadingScene } from './components/LoadingScene'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const profile = useAuthStore((s) => s.profile)
   const loading = useAuthStore((s) => s.loading)
 
   if (loading) {
-    return (
-      <div className="pixel-bg-world min-h-screen flex items-center justify-center">
-        <p className="pixel-font text-[#f5d742] animate-pulse">読み込み中...</p>
-      </div>
-    )
+    return <LoadingScene variant="battle" message="読み込み中..." fullscreen />
   }
 
   if (!profile) return <Navigate to="/login" replace />

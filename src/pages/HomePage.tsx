@@ -6,6 +6,7 @@ import { computeAllMemberStats, computeDashboardKpi } from '../lib/stats'
 import { filterMembersForProfile, getAdminHomePath, isAdmin, isMember } from '../lib/permissions'
 import { MemberCard } from '../components/MemberCard'
 import { PixelWindow } from '../components/PixelWindow'
+import { LoadingScene } from '../components/LoadingScene'
 
 export function HomePage() {
   const profile = useAuthStore((s) => s.profile)
@@ -39,7 +40,7 @@ export function HomePage() {
   }
 
   if (loading) {
-    return <p className="pixel-font text-center text-[#f5d742] animate-pulse">ワールド読み込み中...</p>
+    return <LoadingScene variant="battle" message="ワールド読み込み中..." />
   }
 
   if (error) {

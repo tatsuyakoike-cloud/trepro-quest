@@ -1,0 +1,311 @@
+/* 8bit 風ローディングアニメーション */
+
+.pixel-loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pixel-loading-wrap--fullscreen {
+  min-height: 100vh;
+  justify-content: center;
+}
+
+.pixel-loading-message {
+  font-family: 'DotGothic16', monospace;
+  color: #f5d742;
+  font-size: 0.875rem;
+  text-shadow: 2px 2px 0 #000;
+  animation: loading-dots 1.5s steps(4) infinite;
+}
+
+@keyframes loading-dots {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* --- スライム討伐 --- */
+
+.pixel-loading-battle {
+  position: relative;
+  width: 220px;
+  height: 110px;
+  image-rendering: pixelated;
+}
+
+.pixel-loading-battle__ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 4px;
+  background: #2d4a2d;
+  border-top: 2px solid #4ade80;
+}
+
+.pixel-loading-battle__hero {
+  position: absolute;
+  left: 28px;
+  bottom: 14px;
+  width: 20px;
+  height: 28px;
+  animation: hero-lunge 1.4s ease-in-out infinite;
+}
+
+.pixel-loading-battle__hero-head {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 12px;
+  height: 10px;
+  background: #fbbf24;
+  border: 2px solid #000;
+}
+
+.pixel-loading-battle__hero-body {
+  position: absolute;
+  top: 10px;
+  left: 2px;
+  width: 16px;
+  height: 14px;
+  background: #4a6cf7;
+  border: 2px solid #000;
+}
+
+.pixel-loading-battle__hero-legs {
+  position: absolute;
+  bottom: 0;
+  left: 2px;
+  width: 16px;
+  height: 6px;
+  background: #1e3a8a;
+  border: 2px solid #000;
+}
+
+.pixel-loading-battle__sword {
+  position: absolute;
+  top: 12px;
+  right: -14px;
+  width: 4px;
+  height: 18px;
+  background: #e5e7eb;
+  border: 1px solid #000;
+  transform-origin: bottom center;
+  animation: sword-swing 1.4s ease-in-out infinite;
+}
+
+.pixel-loading-battle__sword::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -2px;
+  width: 8px;
+  height: 6px;
+  background: #f5d742;
+  border: 1px solid #000;
+}
+
+.pixel-loading-battle__slime {
+  position: absolute;
+  right: 36px;
+  bottom: 14px;
+  width: 32px;
+  height: 24px;
+  background: #4ade80;
+  border: 2px solid #166534;
+  border-radius: 50% 50% 45% 45%;
+  animation: slime-bounce 1.4s ease-in-out infinite;
+}
+
+.pixel-loading-battle__slime::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+  background: #0a0a1a;
+  box-shadow: 12px 0 0 #0a0a1a;
+}
+
+.pixel-loading-battle__slime::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 10px;
+  width: 12px;
+  height: 2px;
+  background: #166534;
+}
+
+.pixel-loading-battle__hit {
+  position: absolute;
+  right: 52px;
+  bottom: 44px;
+  font-family: 'DotGothic16', monospace;
+  font-size: 1.25rem;
+  color: #f5d742;
+  text-shadow: 2px 2px 0 #000;
+  opacity: 0;
+  animation: hit-pop 1.4s ease-in-out infinite;
+}
+
+.pixel-loading-battle__hp {
+  position: absolute;
+  right: 24px;
+  bottom: 48px;
+  width: 56px;
+  height: 8px;
+  background: #1a1a2e;
+  border: 2px solid #fff;
+}
+
+.pixel-loading-battle__hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  animation: hp-drain 1.4s ease-in-out infinite;
+}
+
+@keyframes hero-lunge {
+  0%, 100% { transform: translateX(0); }
+  35%, 45% { transform: translateX(24px); }
+  55% { transform: translateX(20px); }
+}
+
+@keyframes sword-swing {
+  0%, 25% { transform: rotate(-30deg); }
+  40% { transform: rotate(60deg); }
+  55%, 100% { transform: rotate(-30deg); }
+}
+
+@keyframes slime-bounce {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  35% { transform: translateY(0) scaleX(1); }
+  42% { transform: translateY(4px) scaleX(1.15) scaleY(0.85); }
+  50% { transform: translateY(-2px) scaleX(0.95); }
+  60% { transform: translateY(0) scaleX(1); }
+}
+
+@keyframes hit-pop {
+  0%, 38% { opacity: 0; transform: scale(0.5); }
+  42% { opacity: 1; transform: scale(1.2); }
+  50% { opacity: 1; transform: scale(1); }
+  58%, 100% { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes hp-drain {
+  0%, 38% { width: 100%; }
+  45% { width: 55%; }
+  55%, 100% { width: 55%; }
+}
+
+/* --- 本をめくる --- */
+
+.pixel-loading-book {
+  position: relative;
+  width: 120px;
+  height: 90px;
+  perspective: 400px;
+}
+
+.pixel-loading-book__base {
+  position: absolute;
+  inset: 0;
+  background: #78350f;
+  border: 3px solid #fff;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.pixel-loading-book__page {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 48%;
+  height: calc(100% - 12px);
+  background: #fef3c7;
+  border: 2px solid #d97706;
+  transform-origin: left center;
+  animation: page-flip 2s ease-in-out infinite;
+}
+
+.pixel-loading-book__page--1 {
+  z-index: 3;
+  animation-delay: 0s;
+}
+
+.pixel-loading-book__page--2 {
+  z-index: 2;
+  background: #fde68a;
+  animation-delay: 0.35s;
+}
+
+.pixel-loading-book__page--3 {
+  z-index: 1;
+  background: #fcd34d;
+  animation-delay: 0.7s;
+}
+
+.pixel-loading-book__page::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: #d97706;
+  box-shadow: 0 10px 0 #d97706, 0 20px 0 #d97706, 0 30px 0 #d97706;
+  opacity: 0.5;
+}
+
+.pixel-loading-book__sparkle {
+  position: absolute;
+  font-family: 'DotGothic16', monospace;
+  color: #f5d742;
+  font-size: 0.75rem;
+  text-shadow: 1px 1px 0 #000;
+  animation: sparkle-float 2s ease-in-out infinite;
+}
+
+.pixel-loading-book__sparkle--1 {
+  top: -8px;
+  right: -4px;
+  animation-delay: 0.2s;
+}
+
+.pixel-loading-book__sparkle--2 {
+  bottom: 4px;
+  left: -12px;
+  animation-delay: 0.8s;
+}
+
+@keyframes page-flip {
+  0%, 15% {
+    transform: rotateY(0deg);
+  }
+  40%, 55% {
+    transform: rotateY(-160deg);
+  }
+  70%, 100% {
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes sparkle-float {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  30%, 70% { opacity: 1; transform: translateY(-4px); }
+}
+
+/* ログイン認証オーバーレイ */
+
+.pixel-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 26, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: inherit;
+}

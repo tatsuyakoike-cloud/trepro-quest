@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore, getPostLoginPath } from '../stores/authStore'
 import { PixelWindow } from '../components/PixelWindow'
+import { LoadingScene } from '../components/LoadingScene'
 
 export function LoginPage() {
   const profile = useAuthStore((s) => s.profile)
@@ -15,11 +16,7 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   if (loading) {
-    return (
-      <div className="pixel-bg-world min-h-screen flex items-center justify-center">
-        <p className="pixel-font text-[#f5d742] animate-pulse">読み込み中...</p>
-      </div>
-    )
+    return <LoadingScene variant="battle" message="読み込み中..." fullscreen />
   }
 
   if (profile) {
@@ -50,7 +47,13 @@ export function LoginPage() {
         </div>
 
         <PixelWindow title="冒険の書">
-          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+          <div className="relative">
+            {submitting && (
+              <div className="pixel-loading-overlay">
+                <LoadingScene variant="book" message="認証中..." />
+              </div>
+            )}
+            <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm text-gray-400 mb-1">
                 メールアドレス
@@ -92,6 +95,7 @@ export function LoginPage() {
               {submitting ? '認証中...' : '冒険をはじめる'}
             </button>
           </form>
+          </div>
         </PixelWindow>
       </div>
     </div>

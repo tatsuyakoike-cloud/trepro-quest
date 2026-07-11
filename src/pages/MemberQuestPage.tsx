@@ -17,6 +17,7 @@ import { QuestCard } from '../components/QuestCard'
 import { CategoryLevelCard } from '../components/CategoryLevelCard'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
+import { LoadingScene } from '../components/LoadingScene'
 import type { ProgressUpdateInput, ProgressWithMission } from '../types'
 
 const VALID_SLUGS = ['asai', 'nakakuki']
@@ -57,7 +58,7 @@ export function MemberQuestPage() {
   }
 
   if (loading || !stats || !tabProgresses) {
-    return <p className="pixel-font text-center text-[#f5d742] animate-pulse">クエスト読み込み中...</p>
+    return <LoadingScene variant="battle" message="クエスト読み込み中..." />
   }
 
   const canEdit = canEditProgress(profile, slug)

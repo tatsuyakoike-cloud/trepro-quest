@@ -21,6 +21,7 @@ import {
 import { AdminMemberTabSummary } from '../components/AdminMemberTabSummary'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
+import { LoadingScene } from '../components/LoadingScene'
 import type { Member, ProgressUpdateInput, ProgressWithMission } from '../types'
 import { downloadRequirementsDoc } from '../lib/downloadRequirements'
 
@@ -153,11 +154,7 @@ export function AdminPage() {
   }
 
   if (loading) {
-    return (
-      <p className="pixel-font text-center text-[#f5d742] animate-pulse">
-        管理画面読み込み中...
-      </p>
-    )
+    return <LoadingScene variant="battle" message="管理画面読み込み中..." />
   }
 
   return (
