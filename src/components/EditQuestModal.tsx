@@ -72,15 +72,15 @@ export function EditQuestModal({
   }
 
   return (
-    <div className="game-message-overlay" role="presentation">
+    <div className="game-message-overlay" role="presentation" onClick={onClose}>
       <div
-        className="pixel-window max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto"
+        className="pixel-window max-w-lg w-full mx-3 sm:mx-4 max-h-[85dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-quest-title"
       >
-        <h3 id="edit-quest-title" className="pixel-title text-lg mb-4">
+        <h3 id="edit-quest-title" className="pixel-title text-base sm:text-lg mb-4 break-words">
           {memberName} — {progress.mission.title}
         </h3>
 
@@ -168,7 +168,14 @@ export function EditQuestModal({
             <p className="text-red-400 text-sm" role="alert">{error}</p>
           )}
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="pixel-btn pixel-btn-secondary flex-1"
+            >
+              キャンセル
+            </button>
             <button
               type="button"
               onClick={handleSubmit}
@@ -176,13 +183,6 @@ export function EditQuestModal({
               className="pixel-btn pixel-btn-gold flex-1"
             >
               {saving ? '保存中...' : '保存'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="pixel-btn pixel-btn-secondary flex-1"
-            >
-              キャンセル
             </button>
           </div>
         </div>

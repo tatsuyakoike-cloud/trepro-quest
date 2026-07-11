@@ -19,17 +19,17 @@ export function GameMessage({ title, children, onClose, variant = 'info' }: Game
   return (
     <div className="game-message-overlay" onClick={onClose} role="presentation">
       <div
-        className={`pixel-window max-w-md w-full mx-4 animate-float-up border-4 ${borderColor}`}
+        className={`pixel-window max-w-md w-full mx-3 sm:mx-4 animate-float-up border-4 ${borderColor}`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="pixel-title text-lg">{title}</h3>
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <h3 className="pixel-title text-base sm:text-lg break-words">{title}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-white shrink-0 inline-flex items-center justify-center min-h-[44px] min-w-[44px]"
             aria-label="閉じる"
           >
             <X size={20} />

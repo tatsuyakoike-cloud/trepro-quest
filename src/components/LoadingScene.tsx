@@ -40,8 +40,8 @@ function BookAnimation() {
 
 export function LoadingScene({ variant, message, fullscreen = false }: LoadingSceneProps) {
   const wrapClass = fullscreen
-    ? 'pixel-loading-wrap pixel-loading-wrap--fullscreen pixel-bg-world'
-    : 'pixel-loading-wrap py-12'
+    ? 'pixel-loading-wrap pixel-loading-wrap--fullscreen pixel-bg-world pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]'
+    : 'pixel-loading-wrap py-8 sm:py-12'
 
   return (
     <div className={wrapClass} role="status" aria-live="polite" aria-label={message}>

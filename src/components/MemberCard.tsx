@@ -12,7 +12,7 @@ export function MemberCard({ stats }: MemberCardProps) {
   const { member, levelLabel, title, progressRate, passedCount, pendingReviewCount, retryCount, nextMission, lastUpdated } = stats
 
   return (
-    <PixelWindow className="flex-1 min-w-[320px]">
+    <PixelWindow className="w-full min-w-0">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>

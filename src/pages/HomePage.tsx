@@ -54,11 +54,11 @@ export function HomePage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="pixel-title text-3xl">トレプロワールド</h1>
+        <h1 className="pixel-title text-2xl sm:text-3xl">トレプロワールド</h1>
         <p className="text-gray-400 mt-2">新卒メンバーの冒険記録</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
         <div className="kpi-card">
           <div className="text-xs text-gray-400">全Step数</div>
           <div className="kpi-value">{kpi.totalSteps}</div>
@@ -87,7 +87,7 @@ export function HomePage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6 justify-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-full">
         {stats.map((s) => (
           <MemberCard key={s.member.id} stats={s} />
         ))}

@@ -160,11 +160,11 @@ export function AdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="pixel-title text-2xl">進捗管理</h1>
+        <h1 className="pixel-title text-xl sm:text-2xl">進捗管理</h1>
         <p className="text-gray-400 mt-1 text-sm">全メンバーのクエスト進捗を一覧で確認・更新</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
         <div className="kpi-card">
           <div className="text-xs text-gray-400">全Step数</div>
           <div className="kpi-value">{kpi.totalSteps}</div>
@@ -193,13 +193,15 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
-            className={`pixel-btn text-sm px-4 py-2 ${activeTab === tab ? 'pixel-btn-gold' : ''}`}
+            className={`pixel-btn text-sm px-3 sm:px-4 py-2 flex-1 sm:flex-none min-w-[8rem] ${
+              activeTab === tab ? 'pixel-btn-gold' : ''
+            }`}
           >
             {tab}
           </button>
@@ -214,12 +216,12 @@ export function AdminPage() {
         {TAB_SECTIONS[activeTab].map((section) => renderSection(section))}
       </div>
 
-      <div className="text-center pt-6 pb-2">
+      <div className="text-center pt-4 sm:pt-6 pb-2 px-2">
         <button
           type="button"
           onClick={handleDownloadRequirements}
           disabled={downloadingDoc}
-          className="text-[10px] text-gray-600 hover:text-gray-400 underline-offset-2 hover:underline transition-colors disabled:opacity-50"
+          className="text-[10px] sm:text-xs text-gray-600 hover:text-gray-400 underline-offset-2 hover:underline transition-colors disabled:opacity-50 max-w-full break-words"
         >
           {downloadingDoc ? 'ダウンロード中...' : '要件定義書の MD ファイルをダウンロード'}
         </button>

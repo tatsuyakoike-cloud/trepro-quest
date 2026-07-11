@@ -20,14 +20,14 @@ export function QuestCard({ progress, canEdit, onEdit }: QuestCardProps) {
 
   return (
     <div
-      className={`quest-card p-4 space-y-3 ${isPassed ? 'quest-card-passed' : ''}`}
+      className={`quest-card p-3 sm:p-4 space-y-3 max-w-full ${isPassed ? 'quest-card-passed' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div>
+        <div className="min-w-0 flex-1">
           <span className="text-xs text-gray-400">{mission.tab}</span>
           <span className="text-xs text-gray-500 mx-1">›</span>
           <span className="text-xs text-gray-400">{mission.mission_group}</span>
-          <h4 className="pixel-font text-base mt-1">
+          <h4 className="pixel-font text-sm sm:text-base mt-1 break-words">
             Step {mission.step_number}: {mission.title}
           </h4>
           <p className="text-xs text-gray-400 mt-1">{mission.level_name}</p>
@@ -36,7 +36,7 @@ export function QuestCard({ progress, canEdit, onEdit }: QuestCardProps) {
           <button
             type="button"
             onClick={onEdit}
-            className="pixel-btn text-xs px-2 py-1 shrink-0"
+            className="pixel-btn pixel-btn-touch-sm text-xs px-3 py-2 shrink-0"
             aria-label="編集"
           >
             <Pencil size={14} />
@@ -44,7 +44,7 @@ export function QuestCard({ progress, canEdit, onEdit }: QuestCardProps) {
         )}
       </div>
 
-      <p className="text-sm text-gray-300">{mission.description}</p>
+      <p className="text-sm text-gray-300 break-words">{mission.description}</p>
 
       {mission.pass_criteria && (
         <div className="text-sm bg-[#1a1a2e] p-2 border border-[#f5d742]/30">
@@ -67,7 +67,7 @@ export function QuestCard({ progress, canEdit, onEdit }: QuestCardProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
         <div>
           <span className="text-gray-500">審査者: </span>
           {mission.reviewer_name}

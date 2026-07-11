@@ -13,8 +13,8 @@ export function CategoryLevelCard({ title, progresses }: CategoryLevelCardProps)
 
   return (
     <PixelWindow title={title}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="pixel-font text-[#f5d742] text-lg">レベル上げ</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-3">
+        <span className="pixel-font text-[#f5d742] text-base sm:text-lg">レベル上げ</span>
         <span className="text-sm text-gray-400">
           合格 {passed} / {total}
         </span>

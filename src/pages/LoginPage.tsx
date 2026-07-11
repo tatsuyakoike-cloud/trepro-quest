@@ -39,10 +39,10 @@ export function LoginPage() {
   }
 
   return (
-    <div className="pixel-bg-world min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="pixel-bg-world min-h-screen flex items-center justify-center p-3 sm:p-4 pb-[env(safe-area-inset-bottom)]">
+      <div className="w-full max-w-md space-y-4 sm:space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="pixel-title text-3xl">トレプロクエスト</h1>
+          <h1 className="pixel-title text-2xl sm:text-3xl">トレプロクエスト</h1>
           <p className="text-gray-400">現場で戦える仲間になるための育成記録</p>
         </div>
 

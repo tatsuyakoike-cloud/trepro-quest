@@ -152,18 +152,18 @@ export function MemberQuestPage() {
   return (
     <div className="space-y-6">
       <PixelWindow title={`${stats.member.name}の冒険記録`}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
           <div>
             <span className="text-gray-500 text-sm">レベル</span>
-            <p className="pixel-font text-2xl text-[#f5d742]">{stats.levelLabel}</p>
+            <p className="pixel-font text-xl sm:text-2xl text-[#f5d742]">{stats.levelLabel}</p>
           </div>
           <div>
             <span className="text-gray-500 text-sm">称号</span>
-            <p className="text-white">{stats.title}</p>
+            <p className="text-white break-words">{stats.title}</p>
           </div>
           <div>
             <span className="text-gray-500 text-sm">合格数</span>
-            <p className="pixel-font text-xl text-green-400">{stats.passedCount}</p>
+            <p className="pixel-font text-lg sm:text-xl text-green-400">{stats.passedCount}</p>
           </div>
           <div>
             <span className="text-gray-500 text-sm">最終更新</span>
@@ -175,19 +175,21 @@ export function MemberQuestPage() {
           </div>
         </div>
         <ProgressBar value={stats.progressRate} label="総合進捗" gold={stats.passedCount >= 6} />
-        <div className="flex gap-4 mt-3 text-sm">
+        <div className="flex flex-wrap gap-3 sm:gap-4 mt-3 text-sm">
           <span className="text-yellow-400">審査待ち: {stats.pendingReviewCount}</span>
           <span className="text-red-400">再挑戦: {stats.retryCount}</span>
         </div>
       </PixelWindow>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
-            className={`pixel-btn text-sm px-4 py-2 ${activeTab === tab ? 'pixel-btn-gold' : ''}`}
+            className={`pixel-btn text-sm px-3 sm:px-4 py-2 flex-1 sm:flex-none min-w-[8rem] ${
+              activeTab === tab ? 'pixel-btn-gold' : ''
+            }`}
           >
             {tab}
           </button>

@@ -7,6 +7,13 @@
   border: 3px solid #ffffff;
   box-shadow: 4px 4px 0 #000000, 8px 8px 0 rgba(0, 0, 0, 0.5);
   image-rendering: pixelated;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .pixel-window {
+    box-shadow: 3px 3px 0 #000000, 5px 5px 0 rgba(0, 0, 0, 0.5);
+  }
 }
 
 .pixel-window-inner {
@@ -40,6 +47,17 @@
   box-shadow: 1px 1px 0 #000;
 }
 
+@media (max-width: 640px) {
+  .pixel-btn {
+    min-height: 44px;
+  }
+
+  .pixel-btn-touch-sm {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
+
 .pixel-btn:focus-visible {
   outline: 2px solid #f5d742;
   outline-offset: 2px;
@@ -64,6 +82,13 @@
   padding: 8px 12px;
   color: white;
   width: 100%;
+}
+
+@media (max-width: 640px) {
+  .pixel-input,
+  .pixel-select {
+    font-size: 16px;
+  }
 }
 
 .pixel-input:focus {
@@ -146,6 +171,8 @@
   justify-content: center;
   z-index: 50;
   animation: fadeIn 0.2s ease;
+  overscroll-behavior: contain;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 @keyframes fadeIn {
@@ -184,14 +211,26 @@
 .kpi-card {
   background: #12122a;
   border: 2px solid white;
-  padding: 12px 16px;
+  padding: 10px 12px;
   text-align: center;
+}
+
+@media (min-width: 640px) {
+  .kpi-card {
+    padding: 12px 16px;
+  }
 }
 
 .kpi-value {
   font-family: 'DotGothic16', monospace;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: #f5d742;
+}
+
+@media (min-width: 640px) {
+  .kpi-value {
+    font-size: 1.5rem;
+  }
 }
 
 .kpi-value-danger {
@@ -202,4 +241,14 @@
   color: #f5d742;
   font-size: 1.5rem;
   animation: floatUp 0.5s ease infinite alternate;
+}
+
+.pixel-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.pixel-scroll-x::-webkit-scrollbar {
+  display: none;
 }

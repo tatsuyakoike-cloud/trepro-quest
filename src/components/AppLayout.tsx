@@ -53,73 +53,80 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="pixel-bg-world min-h-screen">
-      <header className="border-b-3 border-white bg-[#0a0a1a]/90 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link
-            to={profile ? getMemberHomePath(profile) : '/'}
-            className="pixel-title text-lg no-underline shrink-0"
-          >
-            トレプロクエスト
-          </Link>
-          <nav className="flex items-center gap-1 flex-wrap justify-center">
-            {navItems.map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`pixel-btn text-xs px-3 py-2 no-underline inline-flex items-center gap-1 ${
-                  location.pathname === to ||
-                  (to === getAdminHomePath() && location.pathname === '/')
-                    ? 'pixel-btn-gold'
-                    : ''
-                }`}
-              >
-                <Icon size={14} />
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3 shrink-0">
-            <SyncStatusBadge />
-            {canAccessAdmin(profile) && (
-              <a
-                href={SPREADSHEET_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pixel-btn text-xs px-2 py-1 no-underline text-white inline-flex items-center gap-1"
-                title="マスターデータ（スプレッドシート）"
-              >
-                <ExternalLink size={12} />
-                マスター
-              </a>
-            )}
-            {profile && (
-              <span className="text-sm text-gray-400 hidden sm:inline">
-                {profile.name}（{getRoleLabel(profile.role)}）
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => void signOut()}
-              className="pixel-btn pixel-btn-secondary text-xs px-3 py-2 inline-flex items-center gap-1"
+      <header className="border-b-3 border-white bg-[#0a0a1a]/90 sticky top-0 z-40 pt-[env(safe-area-inset-top)]">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <Link
+              to={profile ? getMemberHomePath(profile) : '/'}
+              className="pixel-title text-base sm:text-lg no-underline shrink-0"
             >
-              <LogOut size={14} />
-              終了
-            </button>
+              トレプロクエスト
+            </Link>
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <SyncStatusBadge />
+              {canAccessAdmin(profile) && (
+                <a
+                  href={SPREADSHEET_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pixel-btn pixel-btn-touch-sm text-xs px-2.5 py-2 no-underline text-white inline-flex items-center gap-1"
+                  title="マスターデータ（スプレッドシート）"
+                >
+                  <ExternalLink size={14} />
+                  <span className="hidden sm:inline">マスター</span>
+                </a>
+              )}
+              {profile && (
+                <span className="text-xs sm:text-sm text-gray-400 hidden lg:inline max-w-[10rem] truncate">
+                  {profile.name}（{getRoleLabel(profile.role)}）
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="pixel-btn pixel-btn-secondary pixel-btn-touch-sm text-xs px-2.5 py-2 inline-flex items-center gap-1"
+              >
+                <LogOut size={14} />
+                <span className="hidden sm:inline">終了</span>
+              </button>
+            </div>
           </div>
+
+          {navItems.length > 0 && (
+            <nav className="pixel-scroll-x flex items-center gap-1.5 -mx-1 px-1">
+              {navItems.map(({ to, label, icon: Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`pixel-btn pixel-btn-touch-sm text-xs sm:text-sm px-3 py-2 no-underline inline-flex items-center gap-1 whitespace-nowrap shrink-0 ${
+                    location.pathname === to ||
+                    (to === getAdminHomePath() && location.pathname === '/')
+                      ? 'pixel-btn-gold'
+                      : ''
+                  }`}
+                >
+                  <Icon size={14} />
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
       </header>
       {syncMode === 'local' && (
-        <div className="bg-yellow-900/40 border-b border-yellow-500/40 text-yellow-200 text-sm text-center py-2 px-4">
+        <div className="bg-yellow-900/40 border-b border-yellow-500/40 text-yellow-200 text-xs sm:text-sm text-center py-2 px-3 sm:px-4">
           スプレッドシート未連携です。UIの変更はブラウザ内にのみ保存されます。
         </div>
       )}
       {syncMode === 'offline' && (
-        <div className="bg-red-900/40 border-b border-red-500/40 text-red-200 text-sm text-center py-2 px-4">
+        <div className="bg-red-900/40 border-b border-red-500/40 text-red-200 text-xs sm:text-sm text-center py-2 px-3 sm:px-4">
           {syncMessage ??
             'シートAPIに接続できません。Apps Scriptのデプロイで「アクセス: 全員」に設定し、再デプロイしてください。'}
         </div>
       )}
-      <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-[env(safe-area-inset-bottom)]">
+        {children}
+      </main>
     </div>
   )
 }

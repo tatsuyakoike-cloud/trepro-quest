@@ -22,8 +22,8 @@ export function AdminMemberTabSummary({
 
         return (
           <PixelWindow key={member.id} title={member.name}>
-            <div className="flex items-center justify-between mb-2 text-sm">
-              <span className="text-gray-400">{member.title}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2 text-sm">
+              <span className="text-gray-400 break-words">{member.title}</span>
               <span>
                 合格 {passed} / {total}
               </span>

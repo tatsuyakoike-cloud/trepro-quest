@@ -24,16 +24,16 @@ export function SyncStatusBadge() {
     : null
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 sm:gap-2">
       <span
-        className={`inline-flex items-center gap-1 text-xs px-2 py-1 border ${badge.className}`}
+        className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 border ${badge.className}`}
         title={badge.title}
       >
         <Icon size={12} />
-        {badge.label}
+        <span className="hidden sm:inline">{badge.label}</span>
       </span>
       {lastSyncLabel && (
-        <span className="text-xs text-gray-500 hidden md:inline">
+        <span className="text-xs text-gray-500 hidden lg:inline">
           同期 {lastSyncLabel}
         </span>
       )}
@@ -41,10 +41,11 @@ export function SyncStatusBadge() {
         type="button"
         onClick={() => void load()}
         disabled={loading}
-        className="pixel-btn text-xs px-2 py-1 inline-flex items-center gap-1"
+        className="pixel-btn pixel-btn-touch-sm text-xs px-2.5 py-2 inline-flex items-center justify-center"
         title="今すぐ同期"
+        aria-label="今すぐ同期"
       >
-        <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
       </button>
     </div>
   )
