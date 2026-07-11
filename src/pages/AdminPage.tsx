@@ -167,25 +167,6 @@ export function AdminPage() {
         <p className="text-gray-400 mt-1 text-sm">全メンバーのクエスト進捗を一覧で確認・更新</p>
       </div>
 
-      <PixelWindow title="開発ドキュメント">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-sm text-white font-medium">第1 MVP 要件定義書</p>
-            <p className="text-xs text-gray-400 mt-1">
-              第三者 AI 開発者が別環境から再実装・公開できるレベルの仕様書です。
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleDownloadRequirements}
-            disabled={downloadingDoc}
-            className="pixel-btn pixel-btn-gold text-sm px-4 py-2 shrink-0"
-          >
-            {downloadingDoc ? 'ダウンロード中...' : '要件定義書をダウンロード'}
-          </button>
-        </div>
-      </PixelWindow>
-
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="kpi-card">
           <div className="text-xs text-gray-400">全Step数</div>
@@ -234,6 +215,17 @@ export function AdminPage() {
 
       <div>
         {TAB_SECTIONS[activeTab].map((section) => renderSection(section))}
+      </div>
+
+      <div className="text-center pt-6 pb-2">
+        <button
+          type="button"
+          onClick={handleDownloadRequirements}
+          disabled={downloadingDoc}
+          className="text-[10px] text-gray-600 hover:text-gray-400 underline-offset-2 hover:underline transition-colors disabled:opacity-50"
+        >
+          {downloadingDoc ? 'ダウンロード中...' : '要件定義書の MD ファイルをダウンロード'}
+        </button>
       </div>
 
       {editing && (
