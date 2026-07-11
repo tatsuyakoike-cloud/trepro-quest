@@ -1,7 +1,7 @@
 {
   "spreadsheetId": "12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM",
   "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM/edit",
-  "syncApiUrl": "https://script.google.com/a/macros/tre-pro.co.jp/s/AKfycbyfVh6qYJEc8ASyQoIJzHYN7xjeR1yp9NQ18UGfqul0cJldc7ILU-9GAHGE4zqxQ8KKew/exec",
+  "syncApiUrl": "https://script.google.com/macros/s/AKfycbzzopQFmKZcIs-0xQ_oPfZV2iLLvTDoPsTePpMK78mnt2FqPpZ1M8qf2WyI34EUwPoTuQ/exec",
   "pollIntervalMs": 15000,
   "sheetNames": {
     "users": "ユーザー",

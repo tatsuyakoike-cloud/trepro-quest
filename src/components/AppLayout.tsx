@@ -115,8 +115,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}
       {syncMode === 'offline' && (
         <div className="bg-red-900/40 border-b border-red-500/40 text-red-200 text-sm text-center py-2 px-4">
-          {syncMessage ?? 'シートAPIに接続できません。'}
-          {' '}Apps Script のデプロイで「アクセス: 全員」に設定して再デプロイしてください。
+          {syncMessage ??
+            'シートAPIに接続できません。Apps Scriptのデプロイで「アクセス: 全員」に設定し、再デプロイしてください。'}
         </div>
       )}
       <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
