@@ -56,8 +56,8 @@ function setupMasterData() {
   ensureSheet_(ss, SHEETS.users, [
     ['id', 'name', 'email', 'password', 'role', 'member_slug', 'active'],
     ['admin-001', '管理者', 'admin@trepro.jp', 'trepro2026', 'admin', '', 'TRUE'],
-    ['member-asai', '浅井さん', 'asai@trepro.jp', 'asai2026', 'member', 'asai', 'TRUE'],
-    ['member-nakakuki', '中岫さん', 'nakakuki@trepro.jp', 'nakakuki2026', 'member', 'nakakuki', 'TRUE'],
+    ['member-asai', '浅井さん', 'asai@tre-pro.co.jp', 'asai2026', 'member', 'asai', 'TRUE'],
+    ['member-nakakuki', '中岫さん', 'nakaguki@tre-pro.co.jp', 'nakakuki2026', 'member', 'nakakuki', 'TRUE'],
   ]);
 
   ensureSheet_(ss, SHEETS.members, [
@@ -78,13 +78,13 @@ function setupMasterData() {
   ]);
 
   ensureSheet_(ss, SHEETS.missions, [
-    ['id', 'mission_group', 'step_number', 'level_name', 'title', 'description', 'reviewer_name', 'pass_criteria', 'sort_order', 'active'],
-    ['m-001', '商談ロープレイ', '1', 'Lv.1', '基本営業ロープレイ', 'サービス理解・言葉遣い・商談の基本構成を身につける', '小池', 'サービス内容を正確に説明できる|敬語や言葉遣いに大きな問題がない|商談の基本的な流れを再現できる|次回アクションを提示できる', '1', 'TRUE'],
-    ['m-002', '商談ロープレイ', '2', 'Lv.2', '実践営業ロープレイ', '電話アポ・メール送付・日程調整・商談実施を一連で実施する', '橋口さん', 'アポ取得から商談までを一連で実施できる|クライアント役からの質問に対応できる|商談後のメールを作成できる|次回アクションと日程を握れる', '2', 'TRUE'],
-    ['m-003', '商談ロープレイ', '3', 'Lv.3', '最終営業ロープレイ', '顧客課題の整理・経営者目線への対応・提案と質疑応答', '金山さん', '顧客課題に応じて提案を変更できる|経営者目線の質問に回答できる|商談を自力で完遂できる|金山さんから最終合格をもらう', '3', 'TRUE'],
-    ['m-004', '事例一覧', '1', 'Lv.1', '最新事例収集', 'MMチームへヒアリングし、建設・介護・営業など主要業界の最新事例を収集・整理する', '-', 'MMチームへの確認が完了している|最新事例が反映されている|第三者が営業で再利用できる|情報の出典が確認できる', '4', 'TRUE'],
-    ['m-005', '競合調査', '2', 'Lv.2', '競合・業界調査資料更新', '主要競合の価格・サービス・強み・弱みを比較し、業界の市場構造を整理する', '-', '主要競合を整理している|価格・サービス・強み・弱みを比較している|業界の市場構造を整理している|情報源が記載されている|AIの出力内容を人間が確認している|営業で使用できる示唆がある', '5', 'TRUE'],
-    ['m-006', '提案資料', '3', 'Lv.3', '最新サービス資料の提案反映', '最新サービス内容を理解し、顧客課題に応じた提案資料を作成する', '-', '最新サービス内容を理解している|顧客課題に応じて提案内容を変更している|事例・競合調査の内容を活用している|レビュー指摘を反映している|商談で使用できる状態になっている', '6', 'TRUE'],
+    ['id', 'tab', 'mission_group', 'step_number', 'level_name', 'title', 'description', 'reviewer_name', 'pass_criteria', 'sort_order', 'active'],
+    ['m-001', '商談ロープレ', '商談ロープレのレベル上げ', '1', 'Lv.1', '基本営業ロープレ', 'サービス理解・言葉遣い・商談の基本構成を身につける', '小池', 'サービス内容を正確に説明できる|敬語や言葉遣いに大きな問題がない|商談の基本的な流れを再現できる|次回アクションを提示できる', '1', 'TRUE'],
+    ['m-002', '商談ロープレ', '商談ロープレのレベル上げ', '2', 'Lv.2', '実践営業ロープレ', '電話アポ・メール送付・日程調整・商談実施を一連で実施する', '橋口さん', 'アポ取得から商談までを一連で実施できる|クライアント役からの質問に対応できる|商談後のメールを作成できる|次回アクションと日程を握れる', '2', 'TRUE'],
+    ['m-003', '商談ロープレ', '商談ロープレのレベル上げ', '3', 'Lv.3', '最終営業ロープレ', '顧客課題の整理・経営者目線への対応・提案と質疑応答', '金山さん', '顧客課題に応じて提案を変更できる|経営者目線の質問に回答できる|商談を自力で完遂できる|金山さんから最終合格をもらう', '3', 'TRUE'],
+    ['m-004', '資料作成', '事例一覧', '1', 'Lv.1', '最新事例収集', 'MMチームへヒアリングし、建設・介護・営業など主要業界の最新事例を収集・整理する', '-', 'MMチームへの確認が完了している|最新事例が反映されている|第三者が営業で再利用できる|情報の出典が確認できる', '4', 'TRUE'],
+    ['m-005', '資料作成', '競合調査', '2', 'Lv.2', '競合・業界調査資料更新', '主要競合の価格・サービス・強み・弱みを比較し、業界の市場構造を整理する', '-', '主要競合を整理している|価格・サービス・強み・弱みを比較している|業界の市場構造を整理している|情報源が記載されている|AIの出力内容を人間が確認している|営業で使用できる示唆がある', '5', 'TRUE'],
+    ['m-006', '資料作成', '提案資料のレベル上げ', '3', 'Lv.3', '最新サービス資料の提案反映', '最新サービス内容を理解し、顧客課題に応じた提案資料を作成する', '-', '最新サービス内容を理解している|顧客課題に応じて提案内容を変更している|事例・競合調査の内容を活用している|レビュー指摘を反映している|商談で使用できる状態になっている', '6', 'TRUE'],
   ]);
 
   const progressRows = [['id', 'member_slug', 'mission_id', 'status', 'result', 'executed_at', 'feedback', 'next_action', 'due_date', 'tldb_url', 'updated_by', 'updated_at']];
@@ -112,11 +112,11 @@ function setupMasterData() {
   if (dash) {
     dash.setName(SHEETS.dashboard);
     dash.clear();
-    dash.getRange(1, 1, 4, 8).setValues([
-      ['メンバー', '総合レベル', '総合進捗', '商談ロープレイ', '事例一覧', '競合調査', '提案資料', '要フォロー'],
-      ['浅井さん', 'Lv.0', '0%', '0%', '0%', '0%', '0%', '0'],
-      ['中岫さん', 'Lv.0', '0%', '0%', '0%', '0%', '0%', '0'],
-      ['※ 進捗更新時に自動再計算されます', '', '', '', '', '', '', ''],
+    dash.getRange(1, 1, 4, 6).setValues([
+      ['メンバー', '総合レベル', '総合進捗', '商談ロープレ', '資料作成', '要フォロー'],
+      ['浅井さん', 'Lv.0', '0%', '0%', '0%', '0'],
+      ['中岫さん', 'Lv.0', '0%', '0%', '0%', '0'],
+      ['※ 進捗更新時に自動再計算されます', '', '', '', '', ''],
     ]);
   }
 
@@ -214,6 +214,7 @@ function readMissions_() {
   return readSheetObjects_(SHEETS.missions).map(function (row) {
     return {
       id: row.id,
+      tab: row.tab || '商談ロープレ',
       mission_group: row.mission_group,
       step_number: Number(row.step_number),
       level_name: row.level_name,
@@ -295,32 +296,31 @@ function updateDashboard_() {
     const level = passed >= 6 ? 'Lv.MAX' : 'Lv.' + passed;
     const rate = Math.round((passed / 6) * 100) + '%';
 
-    const groups = {};
+    const tabs = {};
     missions.forEach(function (m) {
-      if (!groups[m.mission_group]) groups[m.mission_group] = { total: 0, passed: 0 };
-      groups[m.mission_group].total += 1;
+      const tab = m.tab || '商談ロープレ';
+      if (!tabs[tab]) tabs[tab] = { total: 0, passed: 0 };
+      tabs[tab].total += 1;
       const prog = memberProgress.find(function (p) { return p.mission_id === m.id; });
-      if (prog && prog.result === '合格') groups[m.mission_group].passed += 1;
+      if (prog && prog.result === '合格') tabs[tab].passed += 1;
     });
 
-    function groupRate(name) {
-      const g = groups[name];
-      if (!g || g.total === 0) return '0%';
-      return Math.round((g.passed / g.total) * 100) + '%';
+    function tabRate(name) {
+      const t = tabs[name];
+      if (!t || t.total === 0) return '0%';
+      return Math.round((t.passed / t.total) * 100) + '%';
     }
 
     const follow = memberProgress.filter(function (p) {
       return p.due_date && p.result !== '合格' && p.status !== '完了' && new Date(p.due_date) < new Date();
     }).length;
 
-    sheet.getRange(idx + 2, 1, 1, 8).setValues([[
+    sheet.getRange(idx + 2, 1, 1, 6).setValues([[
       member.name,
       level,
       rate,
-      groupRate('商談ロープレイ'),
-      groupRate('事例一覧'),
-      groupRate('競合調査'),
-      groupRate('提案資料'),
+      tabRate('商談ロープレ'),
+      tabRate('資料作成'),
       follow,
     ]]);
   });

@@ -3,10 +3,18 @@ import { useParams, Navigate } from 'react-router-dom'
 import { useDataStore } from '../stores/dataStore'
 import { useAuthStore } from '../stores/authStore'
 import { canEditProgress, canViewMember, getMemberHomePath } from '../lib/permissions'
+import {
+  TABS,
+  TAB_SECTIONS,
+  groupProgressesByTab,
+  getDocumentLevelProgress,
+  type QuestTab,
+} from '../lib/missions'
 import { computeMemberStatsBySlug } from '../lib/stats'
 import { PixelWindow } from '../components/PixelWindow'
 import { ProgressBar } from '../components/ProgressBar'
 import { QuestCard } from '../components/QuestCard'
+import { CategoryLevelCard } from '../components/CategoryLevelCard'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
 import { loadConfig } from '../lib/config'
@@ -26,6 +34,7 @@ export function MemberQuestPage() {
   const progresses = useDataStore((s) => s.progresses)
   const saveProgress = useDataStore((s) => s.saveProgress)
 
+  const [activeTab, setActiveTab] = useState<QuestTab>('商談ロープレ')
   const [editing, setEditing] = useState<ProgressWithMission | null>(null)
   const [gameMsg, setGameMsg] = useState<{
     title: string
@@ -36,6 +45,11 @@ export function MemberQuestPage() {
   const stats = useMemo(
     () => (slug ? computeMemberStatsBySlug(slug, members, missions, progresses) : null),
     [slug, members, missions, progresses],
+  )
+
+  const tabProgresses = useMemo(
+    () => (stats ? groupProgressesByTab(stats.progresses) : null),
+    [stats],
   )
 
   useEffect(() => {
@@ -54,7 +68,7 @@ export function MemberQuestPage() {
     return <Navigate to={getMemberHomePath(profile)} replace />
   }
 
-  if (loading || !stats) {
+  if (loading || !stats || !tabProgresses) {
     return <p className="pixel-font text-center text-[#f5d742] animate-pulse">クエスト読み込み中...</p>
   }
 
@@ -100,6 +114,42 @@ export function MemberQuestPage() {
     }
   }
 
+  const documentLevelProgresses = getDocumentLevelProgress(tabProgresses['資料作成'])
+
+  function renderSection(sectionName: string, items: ProgressWithMission[]) {
+    const sectionItems = items.filter((p) => p.mission.mission_group === sectionName)
+    if (sectionItems.length === 0 && sectionName !== 'レベル上げ') return null
+
+    if (sectionName === 'レベル上げ') {
+      return (
+        <div key={sectionName} className="mb-6">
+          <CategoryLevelCard
+            title="資料作成"
+            progresses={documentLevelProgresses}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div key={sectionName} className="space-y-4 mb-8">
+        <h3 className="pixel-font text-[#f5d742] text-base border-b border-white/20 pb-2">
+          {sectionName}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {sectionItems.map((p) => (
+            <QuestCard
+              key={p.id}
+              progress={p}
+              canEdit={canEdit}
+              onEdit={() => setEditing(p)}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <PixelWindow title={`${stats.member.name}の冒険記録`}>
@@ -132,16 +182,34 @@ export function MemberQuestPage() {
         </div>
       </PixelWindow>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {stats.progresses.map((p) => (
-          <QuestCard
-            key={p.id}
-            progress={p}
-            canEdit={canEdit}
-            onEdit={() => setEditing(p)}
-          />
+      <div className="flex gap-2">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`pixel-btn text-sm px-4 py-2 ${activeTab === tab ? 'pixel-btn-gold' : ''}`}
+          >
+            {tab}
+          </button>
         ))}
       </div>
+
+      {activeTab === '商談ロープレ' && (
+        <div>
+          {TAB_SECTIONS['商談ロープレ'].map((section) =>
+            renderSection(section, tabProgresses['商談ロープレ']),
+          )}
+        </div>
+      )}
+
+      {activeTab === '資料作成' && (
+        <div>
+          {TAB_SECTIONS['資料作成'].map((section) =>
+            renderSection(section, tabProgresses['資料作成']),
+          )}
+        </div>
+      )}
 
       {editing && (
         <EditQuestModal

@@ -93,9 +93,9 @@ function getLocalPassword(email: string): string {
   switch (email) {
     case 'admin@trepro.jp':
       return 'trepro2026'
-    case 'asai@trepro.jp':
+    case 'asai@tre-pro.co.jp':
       return 'asai2026'
-    case 'nakakuki@trepro.jp':
+    case 'nakaguki@tre-pro.co.jp':
       return 'nakakuki2026'
     default:
       return DEMO_PASSWORD

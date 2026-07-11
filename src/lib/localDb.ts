@@ -36,7 +36,7 @@ export const DEMO_PROFILES: Profile[] = [
   {
     id: 'member-asai',
     name: '浅井さん',
-    email: 'asai@trepro.jp',
+    email: 'asai@tre-pro.co.jp',
     role: 'member',
     member_slug: 'asai',
     created_at: now,
@@ -45,7 +45,7 @@ export const DEMO_PROFILES: Profile[] = [
   {
     id: 'member-nakakuki',
     name: '中岫さん',
-    email: 'nakakuki@trepro.jp',
+    email: 'nakaguki@tre-pro.co.jp',
     role: 'member',
     member_slug: 'nakakuki',
     created_at: now,
@@ -77,12 +77,12 @@ const defaultMembers: Member[] = [
 const defaultMissions: Mission[] = [
   {
     id: MISSION_IDS[0],
-    mission_group: '商談ロープレイ',
+    tab: '商談ロープレ',
+    mission_group: '商談ロープレのレベル上げ',
     step_number: 1,
     level_name: 'Lv.1',
-    title: '基本営業ロープレイ',
-    description:
-      'サービス理解・言葉遣い・商談の基本構成を身につける。審査者：小池',
+    title: '基本営業ロープレ',
+    description: 'サービス理解・言葉遣い・商談の基本構成を身につける。審査者：小池',
     reviewer_name: '小池',
     pass_criteria:
       'サービス内容を正確に説明できる|敬語や言葉遣いに大きな問題がない|商談の基本的な流れを再現できる|次回アクションを提示できる',
@@ -93,12 +93,12 @@ const defaultMissions: Mission[] = [
   },
   {
     id: MISSION_IDS[1],
-    mission_group: '商談ロープレイ',
+    tab: '商談ロープレ',
+    mission_group: '商談ロープレのレベル上げ',
     step_number: 2,
     level_name: 'Lv.2',
-    title: '実践営業ロープレイ',
-    description:
-      '電話アポ・メール送付・日程調整・商談実施を一連で実施する。審査者：橋口さん',
+    title: '実践営業ロープレ',
+    description: '電話アポ・メール送付・日程調整・商談実施を一連で実施する。審査者：橋口さん',
     reviewer_name: '橋口さん',
     pass_criteria:
       'アポ取得から商談までを一連で実施できる|クライアント役からの質問に対応できる|商談後のメールを作成できる|次回アクションと日程を握れる',
@@ -109,12 +109,12 @@ const defaultMissions: Mission[] = [
   },
   {
     id: MISSION_IDS[2],
-    mission_group: '商談ロープレイ',
+    tab: '商談ロープレ',
+    mission_group: '商談ロープレのレベル上げ',
     step_number: 3,
     level_name: 'Lv.3',
-    title: '最終営業ロープレイ',
-    description:
-      '顧客課題の整理・経営者目線への対応・提案と質疑応答。審査者：金山さん',
+    title: '最終営業ロープレ',
+    description: '顧客課題の整理・経営者目線への対応・提案と質疑応答。審査者：金山さん',
     reviewer_name: '金山さん',
     pass_criteria:
       '顧客課題に応じて提案を変更できる|経営者目線の質問に回答できる|商談を自力で完遂できる|金山さんから最終合格をもらう',
@@ -125,6 +125,7 @@ const defaultMissions: Mission[] = [
   },
   {
     id: MISSION_IDS[3],
+    tab: '資料作成',
     mission_group: '事例一覧',
     step_number: 1,
     level_name: 'Lv.1',
@@ -141,6 +142,7 @@ const defaultMissions: Mission[] = [
   },
   {
     id: MISSION_IDS[4],
+    tab: '資料作成',
     mission_group: '競合調査',
     step_number: 2,
     level_name: 'Lv.2',
@@ -157,12 +159,12 @@ const defaultMissions: Mission[] = [
   },
   {
     id: MISSION_IDS[5],
-    mission_group: '提案資料',
+    tab: '資料作成',
+    mission_group: '提案資料のレベル上げ',
     step_number: 3,
     level_name: 'Lv.3',
     title: '最新サービス資料の提案反映',
-    description:
-      '最新サービス内容を理解し、顧客課題に応じた提案資料を作成する',
+    description: '最新サービス内容を理解し、顧客課題に応じた提案資料を作成する',
     reviewer_name: '-',
     pass_criteria:
       '最新サービス内容を理解している|顧客課題に応じて提案内容を変更している|事例・競合調査の内容を活用している|レビュー指摘を反映している|商談で使用できる状態になっている',
@@ -207,7 +209,13 @@ interface LocalDb {
 function loadDb(): LocalDb {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (raw) {
-    return JSON.parse(raw) as LocalDb
+    const db = JSON.parse(raw) as LocalDb
+    // マイグレーション: 旧データに tab がない場合は再初期化
+    if (db.missions?.length && !db.missions[0]?.tab) {
+      localStorage.removeItem(STORAGE_KEY)
+      return loadDb()
+    }
+    return db
   }
   const db: LocalDb = {
     members: defaultMembers,

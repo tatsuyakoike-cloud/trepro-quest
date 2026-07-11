@@ -32,6 +32,7 @@ export interface Member {
 
 export interface Mission {
   id: string
+  tab: string
   mission_group: string
   step_number: number
   level_name: string

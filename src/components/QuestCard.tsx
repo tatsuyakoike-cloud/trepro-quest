@@ -24,6 +24,8 @@ export function QuestCard({ progress, canEdit, onEdit }: QuestCardProps) {
     >
       <div className="flex items-start justify-between gap-2">
         <div>
+          <span className="text-xs text-gray-400">{mission.tab}</span>
+          <span className="text-xs text-gray-500 mx-1">›</span>
           <span className="text-xs text-gray-400">{mission.mission_group}</span>
           <h4 className="pixel-font text-base mt-1">
             Step {mission.step_number}: {mission.title}

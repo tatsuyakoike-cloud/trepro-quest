@@ -24,8 +24,8 @@ https://docs.google.com/spreadsheets/d/12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzq
 | ロール | メール | パスワード | 見える範囲 |
 |--------|--------|-----------|-----------|
 | 管理者 | admin@trepro.jp | trepro2026 | 全員 |
-| 浅井さん | asai@trepro.jp | asai2026 | 自分のみ |
-| 中岫さん | nakakuki@trepro.jp | nakakuki2026 | 自分のみ |
+| 浅井さん | asai@tre-pro.co.jp | asai2026 | 自分のみ |
+| 中岫さん | nakaguki@tre-pro.co.jp | nakakuki2026 | 自分のみ |
 
 ## ローカル起動
 

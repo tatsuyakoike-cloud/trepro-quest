@@ -55,8 +55,8 @@ GitHub Pages 公開時は `main` に push すれば反映されます。
 | ロール | メール | パスワード | 見える画面 |
 |--------|--------|-----------|-----------|
 | 管理者 | admin@trepro.jp | trepro2026 | 全員の進捗・管理画面 |
-| 浅井さん | asai@trepro.jp | asai2026 | 自分の進捗のみ |
-| 中岫さん | nakakuki@trepro.jp | nakakuki2026 | 自分の進捗のみ |
+| 浅井さん | asai@tre-pro.co.jp | asai2026 | 自分の進捗のみ |
+| 中岫さん | nakaguki@tre-pro.co.jp | nakakuki2026 | 自分の進捗のみ |
 
 パスワードは **ユーザー** シートで変更できます。
 
