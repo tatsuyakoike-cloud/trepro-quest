@@ -10,6 +10,8 @@ import { ResultBadge } from '../components/ResultBadge'
 import { QuestCard } from '../components/QuestCard'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
+import { loadConfig } from '../lib/config'
+import { getMemberHomePath } from '../lib/permissions'
 import type { ProgressResult, ProgressStatus, ProgressUpdateInput, ProgressWithMission } from '../types'
 import { PROGRESS_RESULTS, PROGRESS_STATUSES } from '../types'
 
@@ -18,6 +20,8 @@ type ViewMode = 'card' | 'table'
 export function AdminPage() {
   const profile = useAuthStore((s) => s.profile)
   const load = useDataStore((s) => s.load)
+  const startPolling = useDataStore((s) => s.startPolling)
+  const stopPolling = useDataStore((s) => s.stopPolling)
   const loading = useDataStore((s) => s.loading)
   const members = useDataStore((s) => s.members)
   const missions = useDataStore((s) => s.missions)
@@ -37,10 +41,14 @@ export function AdminPage() {
 
   useEffect(() => {
     void load()
-  }, [load])
+    void loadConfig().then((config) => {
+      if (config.syncApiUrl) startPolling(config.pollIntervalMs)
+    })
+    return () => stopPolling()
+  }, [load, startPolling, stopPolling])
 
   if (!canAccessAdmin(profile)) {
-    return <Navigate to="/" replace />
+    return <Navigate to={getMemberHomePath(profile)} replace />
   }
 
   const allProgresses = useMemo(() => {

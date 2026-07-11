@@ -5,13 +5,7 @@ import type {
   Mission,
   ProgressUpdateInput,
 } from '../types'
-import {
-  fetchMembers,
-  fetchMissions,
-  fetchProgresses,
-  syncMemberTitles,
-  updateProgress,
-} from '../lib/api'
+import { fetchAllData, syncMemberTitles, updateProgress } from '../lib/api'
 import { getTitleFromPassedCount } from '../lib/level'
 
 interface DataState {
@@ -20,7 +14,10 @@ interface DataState {
   progresses: MemberProgress[]
   loading: boolean
   error: string | null
+  pollTimer: ReturnType<typeof setInterval> | null
   load: () => Promise<void>
+  startPolling: (intervalMs: number) => void
+  stopPolling: () => void
   saveProgress: (
     progressId: string,
     input: ProgressUpdateInput,
@@ -35,15 +32,12 @@ export const useDataStore = create<DataState>((set, get) => ({
   progresses: [],
   loading: false,
   error: null,
+  pollTimer: null,
 
   load: async () => {
     set({ loading: true, error: null })
     try {
-      const [members, missions, progresses] = await Promise.all([
-        fetchMembers(),
-        fetchMissions(),
-        fetchProgresses(),
-      ])
+      const { members, missions, progresses } = await fetchAllData()
       await syncMemberTitles(members, progresses)
       set({ members, missions, progresses, loading: false })
     } catch (e) {
@@ -52,6 +46,21 @@ export const useDataStore = create<DataState>((set, get) => ({
         error: e instanceof Error ? e.message : 'データの読み込みに失敗しました',
       })
     }
+  },
+
+  startPolling: (intervalMs) => {
+    const existing = get().pollTimer
+    if (existing) clearInterval(existing)
+    const timer = setInterval(() => {
+      void get().load()
+    }, intervalMs)
+    set({ pollTimer: timer })
+  },
+
+  stopPolling: () => {
+    const timer = get().pollTimer
+    if (timer) clearInterval(timer)
+    set({ pollTimer: null })
   },
 
   saveProgress: async (progressId, input, updatedBy, memberName) => {
@@ -83,8 +92,6 @@ export const useDataStore = create<DataState>((set, get) => ({
           m.id === memberId ? { ...m, title: newTitle } : m,
         )
         set({ members })
-        const key = `trepro-level-${memberId}`
-        localStorage.setItem(key, String(afterPassed))
       }
 
       void memberName

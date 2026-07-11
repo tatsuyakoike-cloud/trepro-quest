@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../stores/authStore'
-import { isSupabaseConfigured } from '../lib/supabase'
+import { useAuthStore, getPostLoginPath } from '../stores/authStore'
 import { PixelWindow } from '../components/PixelWindow'
 
 export function LoginPage() {
   const profile = useAuthStore((s) => s.profile)
   const loading = useAuthStore((s) => s.loading)
   const signIn = useAuthStore((s) => s.signIn)
-  const signInDemo = useAuthStore((s) => s.signInDemo)
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -24,7 +22,9 @@ export function LoginPage() {
     )
   }
 
-  if (profile) return <Navigate to="/" replace />
+  if (profile) {
+    return <Navigate to={getPostLoginPath(profile)} replace />
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,15 +36,10 @@ export function LoginPage() {
       setSubmitting(false)
       return
     }
-    navigate('/', { replace: true })
+    const saved = sessionStorage.getItem('trepro-profile')
+    const loggedIn = saved ? (JSON.parse(saved) as import('../types').Profile) : null
+    navigate(loggedIn ? getPostLoginPath(loggedIn) : '/', { replace: true })
   }
-
-  const handleDemoLogin = (role: 'admin' | 'reviewer' | 'member') => {
-    signInDemo(role)
-    navigate('/', { replace: true })
-  }
-
-  const isDemo = !isSupabaseConfigured()
 
   return (
     <div className="pixel-bg-world min-h-screen flex items-center justify-center p-4">
@@ -67,7 +62,7 @@ export function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder={isDemo ? 'admin@trepro.jp' : 'your@email.com'}
+                autoComplete="username"
               />
             </div>
             <div>
@@ -81,7 +76,7 @@ export function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder={isDemo ? 'trepro2026' : ''}
+                autoComplete="current-password"
               />
             </div>
 
@@ -97,40 +92,6 @@ export function LoginPage() {
               {submitting ? '認証中...' : '冒険をはじめる'}
             </button>
           </form>
-
-          {isDemo && (
-            <div className="mt-6 pt-4 border-t border-white/20 space-y-3">
-              <p className="text-xs text-gray-500 text-center">
-                Supabase未設定 — デモモードで動作中
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('admin')}
-                  className="pixel-btn text-xs"
-                >
-                  管理者
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('reviewer')}
-                  className="pixel-btn text-xs"
-                >
-                  審査者
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('member')}
-                  className="pixel-btn text-xs"
-                >
-                  メンバー
-                </button>
-              </div>
-              <p className="text-xs text-gray-600 text-center">
-                デモ用: admin@trepro.jp / trepro2026
-              </p>
-            </div>
-          )}
         </PixelWindow>
       </div>
     </div>

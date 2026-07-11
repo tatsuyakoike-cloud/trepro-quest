@@ -1,14 +1,19 @@
-import { getSupabase, isSupabaseConfigured } from './supabase'
+import { loadConfig, isSheetsApiConfigured } from './config'
 import {
-  localGetActivityLogs,
+  fetchAllFromApi,
+  loginViaApi,
+  updateProgressViaApi,
+} from './sheetsApi'
+import {
   localGetMembers,
   localGetMissions,
   localGetProgresses,
+  localGetProfileByEmail,
   localUpdateMemberTitle,
   localUpdateProgress,
+  DEMO_PASSWORD,
 } from './localDb'
 import type {
-  ActivityLog,
   Member,
   MemberProgress,
   Mission,
@@ -16,55 +21,85 @@ import type {
 } from '../types'
 import { getTitleFromPassedCount } from './level'
 
+let cachedConfig: Awaited<ReturnType<typeof loadConfig>> | null = null
+
+async function getConfig() {
+  if (!cachedConfig) cachedConfig = await loadConfig()
+  return cachedConfig
+}
+
 export async function fetchMembers(): Promise<Member[]> {
-  const supabase = getSupabase()
-  if (!supabase) return localGetMembers()
-
-  const { data, error } = await supabase
-    .from('members')
-    .select('*')
-    .eq('active', true)
-    .order('slug')
-
-  if (error) throw error
-  return data as Member[]
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) {
+    const data = await fetchAllFromApi(config)
+    return data.members
+  }
+  return localGetMembers()
 }
 
 export async function fetchMissions(): Promise<Mission[]> {
-  const supabase = getSupabase()
-  if (!supabase) return localGetMissions()
-
-  const { data, error } = await supabase
-    .from('missions')
-    .select('*')
-    .eq('active', true)
-    .order('sort_order')
-
-  if (error) throw error
-  return data as Mission[]
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) {
+    const data = await fetchAllFromApi(config)
+    return data.missions
+  }
+  return localGetMissions()
 }
 
 export async function fetchProgresses(): Promise<MemberProgress[]> {
-  const supabase = getSupabase()
-  if (!supabase) return localGetProgresses()
-
-  const { data, error } = await supabase.from('member_progress').select('*')
-  if (error) throw error
-  return data as MemberProgress[]
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) {
+    const data = await fetchAllFromApi(config)
+    return data.progresses
+  }
+  return localGetProgresses()
 }
 
-export async function fetchActivityLogs(): Promise<ActivityLog[]> {
-  const supabase = getSupabase()
-  if (!supabase) return localGetActivityLogs()
+export async function fetchAllData(): Promise<{
+  members: Member[]
+  missions: Mission[]
+  progresses: MemberProgress[]
+}> {
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) {
+    const data = await fetchAllFromApi(config)
+    return data
+  }
+  return {
+    members: localGetMembers(),
+    missions: localGetMissions(),
+    progresses: localGetProgresses(),
+  }
+}
 
-  const { data, error } = await supabase
-    .from('activity_logs')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(100)
+export async function authenticateUser(
+  email: string,
+  password: string,
+): Promise<{ profile: import('../types').Profile | null; error: string | null }> {
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) {
+    return loginViaApi(config, email, password)
+  }
 
-  if (error) throw error
-  return data as ActivityLog[]
+  const profile = localGetProfileByEmail(email)
+  if (!profile) return { profile: null, error: '登録されていないメールアドレスです' }
+  if (password !== getLocalPassword(email)) {
+    return { profile: null, error: 'パスワードが正しくありません' }
+  }
+  return { profile, error: null }
+}
+
+function getLocalPassword(email: string): string {
+  switch (email) {
+    case 'admin@trepro.jp':
+      return 'trepro2026'
+    case 'asai@trepro.jp':
+      return 'asai2026'
+    case 'nakakuki@trepro.jp':
+      return 'nakakuki2026'
+    default:
+      return DEMO_PASSWORD
+  }
 }
 
 export async function updateProgress(
@@ -72,84 +107,27 @@ export async function updateProgress(
   input: ProgressUpdateInput,
   updatedBy: string | null,
 ): Promise<MemberProgress> {
-  const supabase = getSupabase()
-  if (!supabase) {
-    return localUpdateProgress(progressId, input, updatedBy)
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) {
+    return updateProgressViaApi(config, progressId, input, updatedBy)
   }
-
-  const { data: before } = await supabase
-    .from('member_progress')
-    .select('*')
-    .eq('id', progressId)
-    .single()
-
-  const updatePayload = {
-    ...input,
-    updated_by: updatedBy,
-    updated_at: new Date().toISOString(),
-  }
-
-  const { data, error } = await supabase
-    .from('member_progress')
-    .update(updatePayload)
-    .eq('id', progressId)
-    .select()
-    .single()
-
-  if (error) throw error
-
-  await supabase.from('activity_logs').insert({
-    member_id: data.member_id,
-    mission_id: data.mission_id,
-    action: '進捗更新',
-    before_data: before,
-    after_data: data,
-    updated_by: updatedBy,
-  })
-
-  const passedCount = await getPassedCountForMember(data.member_id)
-  const title = getTitleFromPassedCount(passedCount)
-  await supabase
-    .from('members')
-    .update({ title, updated_at: new Date().toISOString() })
-    .eq('id', data.member_id)
-
-  return data as MemberProgress
-}
-
-async function getPassedCountForMember(memberId: string): Promise<number> {
-  const supabase = getSupabase()
-  if (!supabase) return 0
-
-  const { count, error } = await supabase
-    .from('member_progress')
-    .select('*', { count: 'exact', head: true })
-    .eq('member_id', memberId)
-    .eq('result', '合格')
-
-  if (error) return 0
-  return count ?? 0
+  return localUpdateProgress(progressId, input, updatedBy)
 }
 
 export async function syncMemberTitles(
   members: Member[],
   progresses: MemberProgress[],
 ): Promise<void> {
+  const config = await getConfig()
+  if (isSheetsApiConfigured(config)) return
+
   for (const member of members) {
     const passed = progresses.filter(
       (p) => p.member_id === member.id && p.result === '合格',
     ).length
     const title = getTitleFromPassedCount(passed)
     if (member.title !== title) {
-      if (isSupabaseConfigured()) {
-        const supabase = getSupabase()
-        await supabase
-          ?.from('members')
-          .update({ title, updated_at: new Date().toISOString() })
-          .eq('id', member.id)
-      } else {
-        localUpdateMemberTitle(member.id, title)
-      }
+      localUpdateMemberTitle(member.id, title)
     }
   }
 }

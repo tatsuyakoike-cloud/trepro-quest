@@ -1,30 +1,54 @@
 import { useEffect, useMemo } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useDataStore } from '../stores/dataStore'
+import { useAuthStore } from '../stores/authStore'
 import { computeAllMemberStats, computeDashboardKpi } from '../lib/stats'
+import { filterMembersForProfile, isAdmin, isMember } from '../lib/permissions'
 import { MemberCard } from '../components/MemberCard'
 import { PixelWindow } from '../components/PixelWindow'
+import { loadConfig } from '../lib/config'
 
 export function HomePage() {
+  const profile = useAuthStore((s) => s.profile)
   const load = useDataStore((s) => s.load)
+  const startPolling = useDataStore((s) => s.startPolling)
+  const stopPolling = useDataStore((s) => s.stopPolling)
   const loading = useDataStore((s) => s.loading)
   const error = useDataStore((s) => s.error)
   const members = useDataStore((s) => s.members)
   const missions = useDataStore((s) => s.missions)
   const progresses = useDataStore((s) => s.progresses)
 
+  const visibleMembers = useMemo(
+    () => filterMembersForProfile(profile, members),
+    [profile, members],
+  )
+
   const stats = useMemo(
-    () => computeAllMemberStats(members, missions, progresses),
-    [members, missions, progresses],
+    () => computeAllMemberStats(visibleMembers, missions, progresses),
+    [visibleMembers, missions, progresses],
   )
 
   const kpi = useMemo(
-    () => computeDashboardKpi(members, missions, progresses),
-    [members, missions, progresses],
+    () => computeDashboardKpi(visibleMembers, missions, progresses),
+    [visibleMembers, missions, progresses],
   )
 
   useEffect(() => {
     void load()
-  }, [load])
+    void loadConfig().then((config) => {
+      if (config.syncApiUrl) startPolling(config.pollIntervalMs)
+    })
+    return () => stopPolling()
+  }, [load, startPolling, stopPolling])
+
+  if (isMember(profile) && profile?.member_slug) {
+    return <Navigate to={`/members/${profile.member_slug}`} replace />
+  }
+
+  if (!isAdmin(profile)) {
+    return <Navigate to="/login" replace />
+  }
 
   if (loading) {
     return <p className="pixel-font text-center text-[#f5d742] animate-pulse">ワールド読み込み中...</p>

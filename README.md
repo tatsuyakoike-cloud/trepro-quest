@@ -2,14 +2,30 @@
 
 新卒メンバー（浅井さん・中岫さん）のオンボーディング進捗を、8bit JRPG風UIで管理するWebアプリです。
 
-## 使用技術
+**マスターデータは Google スプレッドシートで管理**し、シートを編集するとUIにも反映されます。
 
-- React + Vite + TypeScript
-- Tailwind CSS
-- React Router
-- Zustand
-- Supabase（Auth / Database / RLS）
-- GitHub Pages + GitHub Actions
+## マスターデータ（スプレッドシート）
+
+https://docs.google.com/spreadsheets/d/12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM/edit
+
+| シート | 内容 |
+|--------|------|
+| ユーザー | ログインアカウント |
+| メンバー | 浅井さん・中岫さん |
+| ミッション | カリキュラム・合格条件 |
+| 進捗 | 各Stepのステータス・合否 |
+| 称号 | レベル別称号 |
+| ダッシュボード | 全体サマリー（自動更新） |
+
+セットアップ手順: [docs/google-sheets/SHEET_SETUP.md](docs/google-sheets/SHEET_SETUP.md)
+
+## ログインアカウント
+
+| ロール | メール | パスワード | 見える範囲 |
+|--------|--------|-----------|-----------|
+| 管理者 | admin@trepro.jp | trepro2026 | 全員 |
+| 浅井さん | asai@trepro.jp | asai2026 | 自分のみ |
+| 中岫さん | nakakuki@trepro.jp | nakakuki2026 | 自分のみ |
 
 ## ローカル起動
 
@@ -19,87 +35,21 @@ cp .env.example .env.local
 npm run dev
 ```
 
-ブラウザで http://localhost:5173/trepro-quest/ を開きます。
+## スプレッドシート連携
 
-### デモモード（Supabase未設定時）
+1. Apps Script を設置（`docs/google-sheets/apps-script/Code.gs`）
+2. `setupMasterData` を実行
+3. ウェブアプリとしてデプロイ
+4. `public/config.json` の `syncApiUrl` にデプロイURLを設定
 
-`.env.local` に Supabase の値を設定しない場合、ローカルストレージで動作するデモモードになります。
+`syncApiUrl` 未設定時はローカルデータで動作します（開発用）。
 
-| ロール | メール | パスワード |
-|--------|--------|-----------|
-| 管理者 | admin@trepro.jp | trepro2026 |
-| 審査者 | koike@trepro.jp | trepro2026 |
-| メンバー | asai@trepro.jp | trepro2026 |
+## 公開URL
 
-ログイン画面のクイックボタンからもロールを切り替えられます。
+https://tatsuyakoike-cloud.github.io/trepro-quest/
 
-## Supabase 初期設定
+## 使用技術
 
-1. [Supabase](https://supabase.com/) でプロジェクトを作成
-2. SQL Editor で以下の順に実行:
-   - `supabase/schema.sql`
-   - `supabase/seed.sql`
-   - `supabase/rls.sql`
-3. Authentication > Users でユーザーを作成
-4. 各ユーザーの `profiles` テーブルで `role` と `member_slug` を設定
-
-### 環境変数
-
-`.env.local` に設定:
-
-```env
-VITE_SUPABASE_URL=https://xxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbG...
-```
-
-## ビルド確認
-
-```bash
-npm run build
-npm run preview
-```
-
-## GitHub Pages 公開手順
-
-1. GitHub に `trepro-quest` リポジトリを作成して push
-2. Settings > Pages > Source を **GitHub Actions** に設定
-3. Settings > Secrets and variables > Actions に以下を登録:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-4. `main` ブランチへ push すると自動デプロイされます
-
-公開URL: `https://<username>.github.io/trepro-quest/`
-
-## 画面構成
-
-| 画面 | パス | 説明 |
-|------|------|------|
-| ログイン | `/login` | メール＋パスワード認証 |
-| ワールド | `/` | 浅井さん・中岫さんの進捗ダッシュボード |
-| クエスト | `/members/:slug` | メンバー別ミッション一覧・編集 |
-| 管理 | `/admin` | テーブル/カード表示・絞り込み |
-
-## 権限
-
-| ロール | 閲覧 | 編集 |
-|--------|------|------|
-| admin | 全件 | 全件 |
-| reviewer | 全件 | 進捗・合否・フィードバック |
-| member | 自分のみ | ステータス・TLDB・コメント（合否不可） |
-
-## よくあるエラー
-
-| エラー | 対処 |
-|--------|------|
-| 白い画面 | `base: '/trepro-quest/'` のパスが正しいか確認 |
-| ログインできない | Supabase Auth の Email 設定を確認 |
-| データが表示されない | seed.sql が実行済みか確認 |
-| ビルド失敗 | `npm ci && npm run build` でローカル再現 |
-
-## 今後の拡張案
-
-- スマートフォン対応
-- Slack / メール通知
-- メンバー・ミッション追加UI
-- スプレッドシート連携
-- AIフィードバック要約
+- React + Vite + TypeScript + Tailwind CSS
+- Google スプレッドシート + Apps Script
+- GitHub Pages

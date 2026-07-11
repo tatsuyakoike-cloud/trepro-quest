@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { useDataStore } from '../stores/dataStore'
 import { useAuthStore } from '../stores/authStore'
-import { canEditProgress, canViewMember } from '../lib/permissions'
+import { canEditProgress, canViewMember, getMemberHomePath } from '../lib/permissions'
 import { computeMemberStatsBySlug } from '../lib/stats'
 import { PixelWindow } from '../components/PixelWindow'
 import { ProgressBar } from '../components/ProgressBar'
 import { QuestCard } from '../components/QuestCard'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
+import { loadConfig } from '../lib/config'
 import type { ProgressUpdateInput, ProgressWithMission } from '../types'
 
 const VALID_SLUGS = ['asai', 'nakakuki']
@@ -17,6 +18,8 @@ export function MemberQuestPage() {
   const { slug } = useParams<{ slug: string }>()
   const profile = useAuthStore((s) => s.profile)
   const load = useDataStore((s) => s.load)
+  const startPolling = useDataStore((s) => s.startPolling)
+  const stopPolling = useDataStore((s) => s.stopPolling)
   const loading = useDataStore((s) => s.loading)
   const members = useDataStore((s) => s.members)
   const missions = useDataStore((s) => s.missions)
@@ -37,14 +40,18 @@ export function MemberQuestPage() {
 
   useEffect(() => {
     void load()
-  }, [load])
+    void loadConfig().then((config) => {
+      if (config.syncApiUrl) startPolling(config.pollIntervalMs)
+    })
+    return () => stopPolling()
+  }, [load, startPolling, stopPolling])
 
   if (!slug || !VALID_SLUGS.includes(slug)) {
     return <Navigate to="/" replace />
   }
 
   if (!canViewMember(profile, slug)) {
-    return <Navigate to="/" replace />
+    return <Navigate to={getMemberHomePath(profile)} replace />
   }
 
   if (loading || !stats) {

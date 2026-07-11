@@ -1,0 +1,14 @@
+{
+  "spreadsheetId": "12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM",
+  "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM/edit",
+  "syncApiUrl": "",
+  "pollIntervalMs": 30000,
+  "sheetNames": {
+    "users": "ユーザー",
+    "members": "メンバー",
+    "missions": "ミッション",
+    "progress": "進捗",
+    "titles": "称号",
+    "dashboard": "ダッシュボード"
+  }
+}

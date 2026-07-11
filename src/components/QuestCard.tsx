@@ -44,6 +44,17 @@ export function QuestCard({ progress, canEdit, onEdit }: QuestCardProps) {
 
       <p className="text-sm text-gray-300">{mission.description}</p>
 
+      {mission.pass_criteria && (
+        <div className="text-sm bg-[#1a1a2e] p-2 border border-[#f5d742]/30">
+          <span className="text-[#f5d742] text-xs pixel-font">合格条件</span>
+          <ul className="mt-1 space-y-0.5 list-disc list-inside text-gray-300">
+            {mission.pass_criteria.split('|').map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2">
         <StatusBadge status={progress.status} />
         <ResultBadge result={progress.result} />

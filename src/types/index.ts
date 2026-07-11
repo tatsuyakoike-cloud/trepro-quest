@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'reviewer' | 'member'
+export type UserRole = 'admin' | 'member'
 
 export type ProgressStatus =
   | '未着手'
@@ -38,6 +38,7 @@ export interface Mission {
   title: string
   description: string
   reviewer_name: string
+  pass_criteria: string
   sort_order: number
   active: boolean
   created_at: string
