@@ -22,6 +22,7 @@ import { AdminMemberTabSummary } from '../components/AdminMemberTabSummary'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
 import type { Member, ProgressUpdateInput, ProgressWithMission } from '../types'
+import { downloadRequirementsDoc } from '../lib/downloadRequirements'
 
 export function AdminPage() {
   const profile = useAuthStore((s) => s.profile)
@@ -34,6 +35,7 @@ export function AdminPage() {
   const [activeTab, setActiveTab] = useState<QuestTab>('商談ロープレ')
   const [editing, setEditing] = useState<ProgressWithMission | null>(null)
   const [gameMsg, setGameMsg] = useState<string | null>(null)
+  const [downloadingDoc, setDownloadingDoc] = useState(false)
 
   const activeMembers = useMemo(
     () => members.filter((m) => m.active).sort((a, b) => a.slug.localeCompare(b.slug)),
@@ -86,6 +88,18 @@ export function AdminPage() {
       setGameMsg(
         `記録を保存しました。\n${member?.name ?? ''}の冒険記録を更新しました。${warningNote}`,
       )
+    }
+  }
+
+  const handleDownloadRequirements = () => {
+    setDownloadingDoc(true)
+    try {
+      downloadRequirementsDoc()
+      setGameMsg('要件定義書をダウンロードしました')
+    } catch (e) {
+      setGameMsg(e instanceof Error ? e.message : 'ダウンロードに失敗しました')
+    } finally {
+      setDownloadingDoc(false)
     }
   }
 
@@ -152,6 +166,25 @@ export function AdminPage() {
         <h1 className="pixel-title text-2xl">進捗管理</h1>
         <p className="text-gray-400 mt-1 text-sm">全メンバーのクエスト進捗を一覧で確認・更新</p>
       </div>
+
+      <PixelWindow title="開発ドキュメント">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="text-sm text-white font-medium">第1 MVP 要件定義書</p>
+            <p className="text-xs text-gray-400 mt-1">
+              第三者 AI 開発者が別環境から再実装・公開できるレベルの仕様書です。
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownloadRequirements}
+            disabled={downloadingDoc}
+            className="pixel-btn pixel-btn-gold text-sm px-4 py-2 shrink-0"
+          >
+            {downloadingDoc ? 'ダウンロード中...' : '要件定義書をダウンロード'}
+          </button>
+        </div>
+      </PixelWindow>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="kpi-card">
