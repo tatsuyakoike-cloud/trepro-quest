@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { useDataStore } from '../stores/dataStore'
 import { useAuthStore } from '../stores/authStore'
 import { canEditProgress, canViewMember } from '../lib/permissions'
+import { computeMemberStatsBySlug } from '../lib/stats'
 import { PixelWindow } from '../components/PixelWindow'
 import { ProgressBar } from '../components/ProgressBar'
 import { QuestCard } from '../components/QuestCard'
@@ -17,7 +18,9 @@ export function MemberQuestPage() {
   const profile = useAuthStore((s) => s.profile)
   const load = useDataStore((s) => s.load)
   const loading = useDataStore((s) => s.loading)
-  const getMemberStats = useDataStore((s) => s.getMemberStats)
+  const members = useDataStore((s) => s.members)
+  const missions = useDataStore((s) => s.missions)
+  const progresses = useDataStore((s) => s.progresses)
   const saveProgress = useDataStore((s) => s.saveProgress)
 
   const [editing, setEditing] = useState<ProgressWithMission | null>(null)
@@ -26,6 +29,11 @@ export function MemberQuestPage() {
     body: React.ReactNode
     variant: 'info' | 'levelup' | 'success'
   } | null>(null)
+
+  const stats = useMemo(
+    () => (slug ? computeMemberStatsBySlug(slug, members, missions, progresses) : null),
+    [slug, members, missions, progresses],
+  )
 
   useEffect(() => {
     void load()
@@ -38,8 +46,6 @@ export function MemberQuestPage() {
   if (!canViewMember(profile, slug)) {
     return <Navigate to="/" replace />
   }
-
-  const stats = getMemberStats(slug)
 
   if (loading || !stats) {
     return <p className="pixel-font text-center text-[#f5d742] animate-pulse">クエスト読み込み中...</p>

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { AppLayout } from './components/AppLayout'
 import { LoginPage } from './pages/LoginPage'
 import { HomePage } from './pages/HomePage'
@@ -64,8 +65,10 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter basename="/trepro-quest">
-      <AppRoutes />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter basename="/trepro-quest">
+        <AppRoutes />
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { PixelWindow } from '../components/PixelWindow'
@@ -9,6 +9,7 @@ export function LoginPage() {
   const loading = useAuthStore((s) => s.loading)
   const signIn = useAuthStore((s) => s.signIn)
   const signInDemo = useAuthStore((s) => s.signInDemo)
+  const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -30,8 +31,17 @@ export function LoginPage() {
     setSubmitting(true)
     setError(null)
     const err = await signIn(email, password)
-    if (err) setError(err)
-    setSubmitting(false)
+    if (err) {
+      setError(err)
+      setSubmitting(false)
+      return
+    }
+    navigate('/', { replace: true })
+  }
+
+  const handleDemoLogin = (role: 'admin' | 'reviewer' | 'member') => {
+    signInDemo(role)
+    navigate('/', { replace: true })
   }
 
   const isDemo = !isSupabaseConfigured()
@@ -96,21 +106,21 @@ export function LoginPage() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => signInDemo('admin')}
+                  onClick={() => handleDemoLogin('admin')}
                   className="pixel-btn text-xs"
                 >
                   管理者
                 </button>
                 <button
                   type="button"
-                  onClick={() => signInDemo('reviewer')}
+                  onClick={() => handleDemoLogin('reviewer')}
                   className="pixel-btn text-xs"
                 >
                   審査者
                 </button>
                 <button
                   type="button"
-                  onClick={() => signInDemo('member')}
+                  onClick={() => handleDemoLogin('member')}
                   className="pixel-btn text-xs"
                 >
                   メンバー

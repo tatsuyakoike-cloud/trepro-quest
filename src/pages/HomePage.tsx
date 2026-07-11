@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useDataStore } from '../stores/dataStore'
+import { computeAllMemberStats, computeDashboardKpi } from '../lib/stats'
 import { MemberCard } from '../components/MemberCard'
 import { PixelWindow } from '../components/PixelWindow'
 
@@ -7,8 +8,19 @@ export function HomePage() {
   const load = useDataStore((s) => s.load)
   const loading = useDataStore((s) => s.loading)
   const error = useDataStore((s) => s.error)
-  const stats = useDataStore((s) => s.getAllMemberStats())
-  const kpi = useDataStore((s) => s.getDashboardKpi())
+  const members = useDataStore((s) => s.members)
+  const missions = useDataStore((s) => s.missions)
+  const progresses = useDataStore((s) => s.progresses)
+
+  const stats = useMemo(
+    () => computeAllMemberStats(members, missions, progresses),
+    [members, missions, progresses],
+  )
+
+  const kpi = useMemo(
+    () => computeDashboardKpi(members, missions, progresses),
+    [members, missions, progresses],
+  )
 
   useEffect(() => {
     void load()
