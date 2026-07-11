@@ -18,7 +18,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   spreadsheetUrl:
     'https://docs.google.com/spreadsheets/d/12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM/edit',
   syncApiUrl: import.meta.env.VITE_SYNC_API_URL ?? '',
-  pollIntervalMs: 30000,
+  pollIntervalMs: 15000,
   sheetNames: {
     users: 'ユーザー',
     members: 'メンバー',

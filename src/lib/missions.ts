@@ -55,6 +55,27 @@ export function getDocumentLevelProgress(
   )
 }
 
+export function filterProgressesByTab(
+  progresses: ProgressWithMission[],
+  tab: QuestTab,
+): ProgressWithMission[] {
+  return progresses.filter((p) => (p.mission.tab || '商談ロープレ') === tab)
+}
+
+export function getMissionsForSection(
+  missions: Mission[],
+  tab: QuestTab,
+  sectionName: string,
+): Mission[] {
+  if (sectionName === 'レベル上げ') return []
+  return missions
+    .filter(
+      (m) =>
+        (m.tab || '商談ロープレ') === tab && m.mission_group === sectionName,
+    )
+    .sort((a, b) => a.sort_order - b.sort_order)
+}
+
 export function normalizeMission(m: Mission): Mission {
   return {
     ...m,

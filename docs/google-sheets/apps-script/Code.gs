@@ -9,7 +9,8 @@
  * 5. デプロイ → 新しいデプロイ → ウェブアプリ
  *    - 実行ユーザー: 自分
  *    - アクセス: 全員
- * 6. 公開URLを public/config.json の syncApiUrl に設定
+ * 6. 関数 installTriggers を実行（シート直接編集時のダッシュボード自動更新）
+ * 7. 公開URLを public/config.json の syncApiUrl に設定
  */
 
 const SPREADSHEET_ID = '12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzqESM';
@@ -55,7 +56,7 @@ function setupMasterData() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureSheet_(ss, SHEETS.users, [
     ['id', 'name', 'email', 'password', 'role', 'member_slug', 'active'],
-    ['admin-001', '管理者', 'admin@trepro.jp', 'trepro2026', 'admin', '', 'TRUE'],
+    ['admin-001', '管理者', 'support-team@tre-pro.co.jp', 'trepro2026', 'admin', '', 'TRUE'],
     ['member-asai', '浅井さん', 'asai@tre-pro.co.jp', 'asai2026', 'member', 'asai', 'TRUE'],
     ['member-nakakuki', '中岫さん', 'nakaguki@tre-pro.co.jp', 'nakakuki2026', 'member', 'nakakuki', 'TRUE'],
   ]);
@@ -121,7 +122,45 @@ function setupMasterData() {
   }
 
   SpreadsheetApp.flush();
+  installTriggers();
   Logger.log('setupMasterData 完了');
+}
+
+/**
+ * スプレッドシート上で進捗を直接編集したときにダッシュボードを再計算
+ * （コンテナバインドスクリプトとして設置した場合のシンプルトリガー）
+ */
+function onEdit(e) {
+  handleSheetEdit_(e);
+}
+
+/** 進捗シートの直接編集を検知してダッシュボード・称号を再計算 */
+function onEditProgress_(e) {
+  handleSheetEdit_(e);
+}
+
+function handleSheetEdit_(e) {
+  if (!e || !e.range) return;
+  var sheetName = e.range.getSheet().getName();
+  if (sheetName === SHEETS.progress) {
+    updateDashboard_();
+    updateMemberTitles_();
+  }
+}
+
+/** シート直接編集時の自動再計算トリガーを設置（初回 or 再実行） */
+function installTriggers() {
+  var handler = 'onEditProgress_';
+  ScriptApp.getProjectTriggers().forEach(function (trigger) {
+    if (trigger.getHandlerFunction() === handler) {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  ScriptApp.newTrigger(handler)
+    .forSpreadsheet(SPREADSHEET_ID)
+    .onEdit()
+    .create();
+  Logger.log('installTriggers 完了');
 }
 
 function fetchAllData_() {
@@ -141,7 +180,7 @@ function login_(email, password) {
   const passIdx = headers.indexOf('password');
 
   for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][emailIdx]).trim() === String(email).trim()) {
+    if (String(rows[i][emailIdx]).trim().toLowerCase() === String(email).trim().toLowerCase()) {
       if (String(rows[i][passIdx]) !== String(password)) {
         return { ok: false, message: 'パスワードが正しくありません' };
       }
@@ -192,8 +231,12 @@ function updateProgress_(body) {
   updateDashboard_();
   updateMemberTitles_();
 
+  const members = readMembers_();
+  const memberBySlug = {};
+  members.forEach(function (m) { memberBySlug[m.slug] = m.id; });
+
   const updated = rowToObject_(headers, rows[rowIndex]);
-  return { ok: true, progress: mapProgressRow_(updated), updatedAt: nowIso_() };
+  return { ok: true, progress: mapProgressRow_(updated, memberBySlug), updatedAt: nowIso_() };
 }
 
 function readMembers_() {

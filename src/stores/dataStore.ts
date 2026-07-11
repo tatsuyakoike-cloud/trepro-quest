@@ -6,7 +6,10 @@ import type {
   ProgressUpdateInput,
 } from '../types'
 import { fetchAllData, syncMemberTitles, updateProgress } from '../lib/api'
+import { loadConfig, isSheetsApiConfigured } from '../lib/config'
 import { getTitleFromPassedCount } from '../lib/level'
+
+export type SyncMode = 'sheets' | 'local'
 
 interface DataState {
   members: Member[]
@@ -14,8 +17,11 @@ interface DataState {
   progresses: MemberProgress[]
   loading: boolean
   error: string | null
+  syncMode: SyncMode
+  lastSyncedAt: string | null
   pollTimer: ReturnType<typeof setInterval> | null
-  load: () => Promise<void>
+  visibilityHandler: (() => void) | null
+  load: (options?: { silent?: boolean }) => Promise<void>
   startPolling: (intervalMs: number) => void
   stopPolling: () => void
   saveProgress: (
@@ -32,14 +38,33 @@ export const useDataStore = create<DataState>((set, get) => ({
   progresses: [],
   loading: false,
   error: null,
+  syncMode: 'local',
+  lastSyncedAt: null,
   pollTimer: null,
+  visibilityHandler: null,
 
-  load: async () => {
-    set({ loading: true, error: null })
+  load: async (options) => {
+    const silent = options?.silent ?? false
+    if (!silent) set({ loading: true, error: null })
+
     try {
+      const config = await loadConfig()
+      const sheetsMode = isSheetsApiConfigured(config)
       const { members, missions, progresses } = await fetchAllData()
-      await syncMemberTitles(members, progresses)
-      set({ members, missions, progresses, loading: false })
+
+      if (!sheetsMode) {
+        await syncMemberTitles(members, progresses)
+      }
+
+      set({
+        members,
+        missions,
+        progresses,
+        loading: false,
+        syncMode: sheetsMode ? 'sheets' : 'local',
+        lastSyncedAt: new Date().toISOString(),
+        error: null,
+      })
     } catch (e) {
       set({
         loading: false,
@@ -49,18 +74,33 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   startPolling: (intervalMs) => {
-    const existing = get().pollTimer
-    if (existing) clearInterval(existing)
+    const { pollTimer, visibilityHandler } = get()
+    if (pollTimer) clearInterval(pollTimer)
+    if (visibilityHandler) {
+      document.removeEventListener('visibilitychange', visibilityHandler)
+    }
+
     const timer = setInterval(() => {
-      void get().load()
+      void get().load({ silent: true })
     }, intervalMs)
-    set({ pollTimer: timer })
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void get().load({ silent: true })
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+
+    set({ pollTimer: timer, visibilityHandler: onVisible })
   },
 
   stopPolling: () => {
-    const timer = get().pollTimer
-    if (timer) clearInterval(timer)
-    set({ pollTimer: null })
+    const { pollTimer, visibilityHandler } = get()
+    if (pollTimer) clearInterval(pollTimer)
+    if (visibilityHandler) {
+      document.removeEventListener('visibilitychange', visibilityHandler)
+    }
+    set({ pollTimer: null, visibilityHandler: null })
   },
 
   saveProgress: async (progressId, input, updatedBy, memberName) => {
@@ -74,7 +114,30 @@ export const useDataStore = create<DataState>((set, get) => ({
     ).length
 
     try {
+      const config = await loadConfig()
+      const sheetsMode = isSheetsApiConfigured(config)
       const updated = await updateProgress(progressId, input, updatedBy)
+
+      if (sheetsMode) {
+        const fresh = await fetchAllData()
+        const afterPassed = fresh.progresses.filter(
+          (p) => p.member_id === memberId && p.result === '合格',
+        ).length
+        const leveledUp = input.result === '合格' && afterPassed > beforePassed
+        const newTitle = leveledUp ? getTitleFromPassedCount(afterPassed) : null
+
+        set({
+          members: fresh.members,
+          missions: fresh.missions,
+          progresses: fresh.progresses,
+          lastSyncedAt: new Date().toISOString(),
+          syncMode: 'sheets',
+        })
+
+        void memberName
+        return { error: null, leveledUp, newTitle }
+      }
+
       const newProgresses = progresses.map((p) =>
         p.id === progressId ? updated : p,
       )

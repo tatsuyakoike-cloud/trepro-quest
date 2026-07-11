@@ -23,7 +23,7 @@ https://docs.google.com/spreadsheets/d/12qHhMQB7DsYZauA64slzs3ABaMcJYMPWivMYgWzq
 
 | ロール | メール | パスワード | 見える範囲 |
 |--------|--------|-----------|-----------|
-| 管理者 | admin@trepro.jp | trepro2026 | 全員 |
+| 管理者 | support-team@tre-pro.co.jp | trepro2026 | 全員 |
 | 浅井さん | asai@tre-pro.co.jp | asai2026 | 自分のみ |
 | 中岫さん | nakaguki@tre-pro.co.jp | nakakuki2026 | 自分のみ |
 
@@ -42,7 +42,11 @@ npm run dev
 3. ウェブアプリとしてデプロイ
 4. `public/config.json` の `syncApiUrl` にデプロイURLを設定
 
-`syncApiUrl` 未設定時はローカルデータで動作します（開発用）。
+`syncApiUrl` 未設定時はローカルデータで動作します（開発用）。本番では必ず Apps Script の URL を設定してください。
+
+画面上部のバッジで連携状態を確認できます:
+- **シート連携**（緑）: スプレッドシートと双方向同期中
+- **ローカル**（黄）: ブラウザ内のみ（未連携）
 
 ## 公開URL
 

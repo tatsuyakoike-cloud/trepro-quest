@@ -41,15 +41,41 @@ export async function loginViaApi(
   config: AppConfig,
   email: string,
   password: string,
-): Promise<{ profile: Profile | null; error: string | null }> {
-  const res = await fetch(config.syncApiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'login', email, password }),
-  })
-  const payload = await res.json()
-  if (!payload.ok) return { profile: null, error: payload.message || 'ログインに失敗しました' }
-  return { profile: payload.profile as Profile, error: null }
+): Promise<{ profile: Profile | null; error: string | null; apiReachable: boolean }> {
+  try {
+    const res = await fetch(config.syncApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'login', email: email.trim(), password }),
+      redirect: 'follow',
+    })
+    const text = await res.text()
+    let payload: { ok?: boolean; message?: string; profile?: Profile }
+    try {
+      payload = JSON.parse(text) as typeof payload
+    } catch {
+      return {
+        profile: null,
+        error:
+          'スプレッドシートAPIに接続できません。Apps Scriptのデプロイで「アクセス: 全員」になっているか確認してください。',
+        apiReachable: false,
+      }
+    }
+    if (!payload.ok) {
+      return {
+        profile: null,
+        error: payload.message || 'ログインに失敗しました',
+        apiReachable: true,
+      }
+    }
+    return { profile: payload.profile as Profile, error: null, apiReachable: true }
+  } catch {
+    return {
+      profile: null,
+      error: 'スプレッドシートAPIへの接続に失敗しました',
+      apiReachable: false,
+    }
+  }
 }
 
 export async function updateProgressViaApi(

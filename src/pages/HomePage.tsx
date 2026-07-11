@@ -1,18 +1,14 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useDataStore } from '../stores/dataStore'
 import { useAuthStore } from '../stores/authStore'
 import { computeAllMemberStats, computeDashboardKpi } from '../lib/stats'
-import { filterMembersForProfile, isAdmin, isMember } from '../lib/permissions'
+import { filterMembersForProfile, getAdminHomePath, isAdmin, isMember } from '../lib/permissions'
 import { MemberCard } from '../components/MemberCard'
 import { PixelWindow } from '../components/PixelWindow'
-import { loadConfig } from '../lib/config'
 
 export function HomePage() {
   const profile = useAuthStore((s) => s.profile)
-  const load = useDataStore((s) => s.load)
-  const startPolling = useDataStore((s) => s.startPolling)
-  const stopPolling = useDataStore((s) => s.stopPolling)
   const loading = useDataStore((s) => s.loading)
   const error = useDataStore((s) => s.error)
   const members = useDataStore((s) => s.members)
@@ -34,20 +30,12 @@ export function HomePage() {
     [visibleMembers, missions, progresses],
   )
 
-  useEffect(() => {
-    void load()
-    void loadConfig().then((config) => {
-      if (config.syncApiUrl) startPolling(config.pollIntervalMs)
-    })
-    return () => stopPolling()
-  }, [load, startPolling, stopPolling])
-
   if (isMember(profile) && profile?.member_slug) {
     return <Navigate to={`/members/${profile.member_slug}`} replace />
   }
 
-  if (!isAdmin(profile)) {
-    return <Navigate to="/login" replace />
+  if (isAdmin(profile)) {
+    return <Navigate to={getAdminHomePath()} replace />
   }
 
   if (loading) {

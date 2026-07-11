@@ -40,7 +40,12 @@ export function canAccessAdmin(profile: Profile | null): boolean {
   return isAdmin(profile)
 }
 
+export function getAdminHomePath(): string {
+  return '/admin'
+}
+
 export function getMemberHomePath(profile: Profile | null): string {
+  if (isAdmin(profile)) return getAdminHomePath()
   if (profile?.role === 'member' && profile.member_slug) {
     return `/members/${profile.member_slug}`
   }

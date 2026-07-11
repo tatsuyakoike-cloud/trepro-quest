@@ -1,8 +1,13 @@
+import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Map, Settings, LogOut, ExternalLink } from 'lucide-react'
+import { Map, Settings, LogOut, ExternalLink } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
+import { useDataStore } from '../stores/dataStore'
+import { loadConfig } from '../lib/config'
+import { SyncStatusBadge } from './SyncStatusBadge'
 import {
   canAccessAdmin,
+  getAdminHomePath,
   getMemberHomePath,
   getRoleLabel,
   isAdmin,
@@ -15,16 +20,27 @@ const SPREADSHEET_URL =
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const profile = useAuthStore((s) => s.profile)
   const signOut = useAuthStore((s) => s.signOut)
+  const load = useDataStore((s) => s.load)
+  const startPolling = useDataStore((s) => s.startPolling)
+  const stopPolling = useDataStore((s) => s.stopPolling)
+  const syncMode = useDataStore((s) => s.syncMode)
   const location = useLocation()
 
-  const navItems: { to: string; label: string; icon: typeof Home }[] = []
+  useEffect(() => {
+    void load()
+    void loadConfig().then((config) => {
+      if (config.syncApiUrl) startPolling(config.pollIntervalMs)
+    })
+    return () => stopPolling()
+  }, [load, startPolling, stopPolling])
+
+  const navItems: { to: string; label: string; icon: typeof Map }[] = []
 
   if (isAdmin(profile)) {
     navItems.push(
-      { to: '/', label: 'ワールド', icon: Home },
+      { to: getAdminHomePath(), label: '進捗管理', icon: Settings },
       { to: '/members/asai', label: '浅井さん', icon: Map },
       { to: '/members/nakakuki', label: '中岫さん', icon: Map },
-      { to: '/admin', label: '管理', icon: Settings },
     )
   } else if (isMember(profile) && profile?.member_slug) {
     navItems.push({
@@ -50,7 +66,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 key={to}
                 to={to}
                 className={`pixel-btn text-xs px-3 py-2 no-underline inline-flex items-center gap-1 ${
-                  location.pathname === to ? 'pixel-btn-gold' : ''
+                  location.pathname === to ||
+                  (to === getAdminHomePath() && location.pathname === '/')
+                    ? 'pixel-btn-gold'
+                    : ''
                 }`}
               >
                 <Icon size={14} />
@@ -59,6 +78,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="flex items-center gap-3 shrink-0">
+            <SyncStatusBadge />
             {canAccessAdmin(profile) && (
               <a
                 href={SPREADSHEET_URL}
@@ -87,6 +107,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+      {syncMode === 'local' && (
+        <div className="bg-yellow-900/40 border-b border-yellow-500/40 text-yellow-200 text-sm text-center py-2 px-4">
+          スプレッドシート未連携です。UIの変更はブラウザ内にのみ保存されます。
+          Apps Script の URL を public/config.json の syncApiUrl に設定すると双方向同期が有効になります。
+        </div>
+      )}
       <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
     </div>
   )

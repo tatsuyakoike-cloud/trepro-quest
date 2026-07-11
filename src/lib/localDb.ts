@@ -27,7 +27,7 @@ export const DEMO_PROFILES: Profile[] = [
   {
     id: 'admin-001',
     name: '管理者',
-    email: 'admin@trepro.jp',
+    email: 'support-team@tre-pro.co.jp',
     role: 'admin',
     member_slug: null,
     created_at: now,
@@ -290,8 +290,13 @@ export function localUpdateMemberTitle(memberId: string, title: string): void {
   }
 }
 
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
 export function localGetProfileByEmail(email: string): Profile | null {
-  return DEMO_PROFILES.find((p) => p.email === email) ?? null
+  const normalized = normalizeEmail(email)
+  return DEMO_PROFILES.find((p) => normalizeEmail(p.email) === normalized) ?? null
 }
 
 export const DEMO_PASSWORD = 'trepro2026'

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { useDataStore } from '../stores/dataStore'
 import { useAuthStore } from '../stores/authStore'
@@ -17,7 +17,6 @@ import { QuestCard } from '../components/QuestCard'
 import { CategoryLevelCard } from '../components/CategoryLevelCard'
 import { EditQuestModal } from '../components/EditQuestModal'
 import { GameMessage } from '../components/GameMessage'
-import { loadConfig } from '../lib/config'
 import type { ProgressUpdateInput, ProgressWithMission } from '../types'
 
 const VALID_SLUGS = ['asai', 'nakakuki']
@@ -25,9 +24,6 @@ const VALID_SLUGS = ['asai', 'nakakuki']
 export function MemberQuestPage() {
   const { slug } = useParams<{ slug: string }>()
   const profile = useAuthStore((s) => s.profile)
-  const load = useDataStore((s) => s.load)
-  const startPolling = useDataStore((s) => s.startPolling)
-  const stopPolling = useDataStore((s) => s.stopPolling)
   const loading = useDataStore((s) => s.loading)
   const members = useDataStore((s) => s.members)
   const missions = useDataStore((s) => s.missions)
@@ -51,14 +47,6 @@ export function MemberQuestPage() {
     () => (stats ? groupProgressesByTab(stats.progresses) : null),
     [stats],
   )
-
-  useEffect(() => {
-    void load()
-    void loadConfig().then((config) => {
-      if (config.syncApiUrl) startPolling(config.pollIntervalMs)
-    })
-    return () => stopPolling()
-  }, [load, startPolling, stopPolling])
 
   if (!slug || !VALID_SLUGS.includes(slug)) {
     return <Navigate to="/" replace />

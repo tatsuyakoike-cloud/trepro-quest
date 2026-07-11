@@ -11,6 +11,7 @@ import {
   localGetProfileByEmail,
   localUpdateMemberTitle,
   localUpdateProgress,
+  normalizeEmail,
   DEMO_PASSWORD,
 } from './localDb'
 import type {
@@ -78,7 +79,16 @@ export async function authenticateUser(
 ): Promise<{ profile: import('../types').Profile | null; error: string | null }> {
   const config = await getConfig()
   if (isSheetsApiConfigured(config)) {
-    return loginViaApi(config, email, password)
+    const apiResult = await loginViaApi(config, email, password)
+    if (apiResult.profile) return { profile: apiResult.profile, error: null }
+
+    // API未接続・ユーザー未登録時はローカル認証にフォールバック
+    const localProfile = localGetProfileByEmail(email)
+    if (localProfile && password === getLocalPassword(email)) {
+      return { profile: localProfile, error: null }
+    }
+
+    return { profile: null, error: apiResult.error }
   }
 
   const profile = localGetProfileByEmail(email)
@@ -90,7 +100,8 @@ export async function authenticateUser(
 }
 
 function getLocalPassword(email: string): string {
-  switch (email) {
+  switch (normalizeEmail(email)) {
+    case 'support-team@tre-pro.co.jp':
     case 'admin@trepro.jp':
       return 'trepro2026'
     case 'asai@tre-pro.co.jp':
