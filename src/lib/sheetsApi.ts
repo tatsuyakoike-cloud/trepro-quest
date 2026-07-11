@@ -8,16 +8,51 @@ export interface SheetsData {
   titles: { level: string; title: string }[]
 }
 
+const API_ERROR_MESSAGE =
+  'スプレッドシートAPIに接続できません。Apps Scriptのデプロイで「アクセス: 全員」に設定し、再デプロイしてください。'
+
 function apiUrl(config: AppConfig, params?: Record<string, string>): string {
   const base = config.syncApiUrl
   const qs = new URLSearchParams({ ...params, t: String(Date.now()) })
   return `${base}${base.includes('?') ? '&' : '?'}${qs.toString()}`
 }
 
+async function requestApi<T>(
+  url: string,
+  init?: RequestInit,
+): Promise<{ ok: true; payload: T } | { ok: false; reachable: boolean; message: string }> {
+  try {
+    const res = await fetch(url, { ...init, redirect: 'follow' })
+    const text = await res.text()
+    try {
+      const payload = JSON.parse(text) as T & { ok?: boolean; message?: string }
+      if (payload && typeof payload === 'object' && 'ok' in payload && payload.ok === false) {
+        return {
+          ok: false,
+          reachable: true,
+          message: payload.message || 'リクエストに失敗しました',
+        }
+      }
+      return { ok: true, payload }
+    } catch {
+      return { ok: false, reachable: false, message: API_ERROR_MESSAGE }
+    }
+  } catch {
+    return { ok: false, reachable: false, message: API_ERROR_MESSAGE }
+  }
+}
+
 export async function fetchAllFromApi(config: AppConfig): Promise<SheetsData> {
-  const res = await fetch(apiUrl(config, { action: 'fetchAll' }), { cache: 'no-store' })
-  const payload = await res.json()
-  if (!payload.ok) throw new Error(payload.message || 'データ取得に失敗しました')
+  const result = await requestApi<{
+    ok: boolean
+    message?: string
+    data: SheetsData
+  }>(apiUrl(config, { action: 'fetchAll' }), { cache: 'no-store' })
+
+  if (!result.ok) throw new Error(result.message)
+
+  const payload = result.payload
+  if (!payload.data) throw new Error(payload.message || 'データ取得に失敗しました')
 
   const members: Member[] = payload.data.members
   const missions: Mission[] = payload.data.missions
@@ -42,40 +77,30 @@ export async function loginViaApi(
   email: string,
   password: string,
 ): Promise<{ profile: Profile | null; error: string | null; apiReachable: boolean }> {
-  try {
-    const res = await fetch(config.syncApiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'login', email: email.trim(), password }),
-      redirect: 'follow',
-    })
-    const text = await res.text()
-    let payload: { ok?: boolean; message?: string; profile?: Profile }
-    try {
-      payload = JSON.parse(text) as typeof payload
-    } catch {
-      return {
-        profile: null,
-        error:
-          'スプレッドシートAPIに接続できません。Apps Scriptのデプロイで「アクセス: 全員」になっているか確認してください。',
-        apiReachable: false,
-      }
-    }
-    if (!payload.ok) {
-      return {
-        profile: null,
-        error: payload.message || 'ログインに失敗しました',
-        apiReachable: true,
-      }
-    }
-    return { profile: payload.profile as Profile, error: null, apiReachable: true }
-  } catch {
+  const result = await requestApi<{
+    ok: boolean
+    message?: string
+    profile?: Profile
+  }>(config.syncApiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'login', email: email.trim(), password }),
+  })
+
+  if (!result.ok) {
+    return { profile: null, error: result.message, apiReachable: result.reachable }
+  }
+
+  const payload = result.payload
+  if (!payload.ok || !payload.profile) {
     return {
       profile: null,
-      error: 'スプレッドシートAPIへの接続に失敗しました',
-      apiReachable: false,
+      error: payload.message || 'ログインに失敗しました',
+      apiReachable: true,
     }
   }
+
+  return { profile: payload.profile, error: null, apiReachable: true }
 }
 
 export async function updateProgressViaApi(
@@ -84,7 +109,11 @@ export async function updateProgressViaApi(
   input: ProgressUpdateInput,
   updatedBy: string | null,
 ): Promise<MemberProgress> {
-  const res = await fetch(config.syncApiUrl, {
+  const result = await requestApi<{
+    ok: boolean
+    message?: string
+    progress?: MemberProgress
+  }>(config.syncApiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({
@@ -93,18 +122,16 @@ export async function updateProgressViaApi(
       data: { ...input, updated_by: updatedBy },
     }),
   })
-  const payload = await res.json()
-  if (!payload.ok) throw new Error(payload.message || '保存に失敗しました')
-  return payload.progress as MemberProgress
+
+  if (!result.ok) throw new Error(result.message)
+  if (!result.payload.progress) {
+    throw new Error(result.payload.message || '保存に失敗しました')
+  }
+  return result.payload.progress
 }
 
 export async function pingApi(config: AppConfig): Promise<boolean> {
   if (!config.syncApiUrl) return false
-  try {
-    const res = await fetch(apiUrl(config), { cache: 'no-store' })
-    const payload = await res.json()
-    return payload.ok === true
-  } catch {
-    return false
-  }
+  const result = await requestApi<{ ok: boolean }>(apiUrl(config), { cache: 'no-store' })
+  return result.ok && result.payload.ok === true
 }

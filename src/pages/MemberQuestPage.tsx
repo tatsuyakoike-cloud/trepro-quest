@@ -79,6 +79,10 @@ export function MemberQuestPage() {
       return
     }
 
+    const warningText = result.warning ? (
+      <p className="text-yellow-400 text-sm mt-2">{result.warning}</p>
+    ) : null
+
     if (result.leveledUp && result.newTitle) {
       setGameMsg({
         title: 'レベルが あがった！',
@@ -89,6 +93,7 @@ export function MemberQuestPage() {
               {stats.member.name}は<br />
               「{result.newTitle}」になった。
             </p>
+            {warningText}
           </>
         ),
         variant: 'levelup',
@@ -96,7 +101,12 @@ export function MemberQuestPage() {
     } else {
       setGameMsg({
         title: '記録を保存しました',
-        body: <p>{stats.member.name}の冒険記録を更新しました。</p>,
+        body: (
+          <>
+            <p>{stats.member.name}の冒険記録を更新しました。</p>
+            {warningText}
+          </>
+        ),
         variant: 'success',
       })
     }

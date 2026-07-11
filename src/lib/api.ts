@@ -2,17 +2,16 @@ import { loadConfig, isSheetsApiConfigured } from './config'
 import {
   fetchAllFromApi,
   loginViaApi,
+  pingApi,
   updateProgressViaApi,
 } from './sheetsApi'
+import { getLocalPassword, validateLocalCredentials } from './auth'
 import {
   localGetMembers,
   localGetMissions,
   localGetProgresses,
-  localGetProfileByEmail,
   localUpdateMemberTitle,
   localUpdateProgress,
-  normalizeEmail,
-  DEMO_PASSWORD,
 } from './localDb'
 import type {
   Member,
@@ -29,100 +28,70 @@ async function getConfig() {
   return cachedConfig
 }
 
-export async function fetchMembers(): Promise<Member[]> {
+export async function isSheetsApiReachable(): Promise<boolean> {
   const config = await getConfig()
-  if (isSheetsApiConfigured(config)) {
-    const data = await fetchAllFromApi(config)
-    return data.members
-  }
-  return localGetMembers()
-}
-
-export async function fetchMissions(): Promise<Mission[]> {
-  const config = await getConfig()
-  if (isSheetsApiConfigured(config)) {
-    const data = await fetchAllFromApi(config)
-    return data.missions
-  }
-  return localGetMissions()
-}
-
-export async function fetchProgresses(): Promise<MemberProgress[]> {
-  const config = await getConfig()
-  if (isSheetsApiConfigured(config)) {
-    const data = await fetchAllFromApi(config)
-    return data.progresses
-  }
-  return localGetProgresses()
+  if (!isSheetsApiConfigured(config)) return false
+  return pingApi(config)
 }
 
 export async function fetchAllData(): Promise<{
   members: Member[]
   missions: Mission[]
   progresses: MemberProgress[]
+  source: 'sheets' | 'local'
 }> {
   const config = await getConfig()
-  if (isSheetsApiConfigured(config)) {
-    const data = await fetchAllFromApi(config)
-    return data
+  if (isSheetsApiConfigured(config) && (await pingApi(config))) {
+    try {
+      const data = await fetchAllFromApi(config)
+      return { ...data, source: 'sheets' }
+    } catch {
+      // fall through to local
+    }
   }
-  return {
-    members: localGetMembers(),
-    missions: localGetMissions(),
-    progresses: localGetProgresses(),
-  }
+  const members = localGetMembers()
+  const missions = localGetMissions()
+  const progresses = localGetProgresses()
+  await syncMemberTitles(members, progresses)
+  return { members, missions, progresses, source: 'local' }
 }
 
+/**
+ * ログインは組み込みアカウントを優先（API不要）。
+ * API接続時はシート上のプロフィールがあればそちらを使用。
+ */
 export async function authenticateUser(
   email: string,
   password: string,
 ): Promise<{ profile: import('../types').Profile | null; error: string | null }> {
+  const localResult = validateLocalCredentials(email, password)
+  if (localResult.error) return localResult
+
   const config = await getConfig()
-  if (isSheetsApiConfigured(config)) {
+  if (isSheetsApiConfigured(config) && (await pingApi(config))) {
     const apiResult = await loginViaApi(config, email, password)
     if (apiResult.profile) return { profile: apiResult.profile, error: null }
-
-    // API未接続・ユーザー未登録時はローカル認証にフォールバック
-    const localProfile = localGetProfileByEmail(email)
-    if (localProfile && password === getLocalPassword(email)) {
-      return { profile: localProfile, error: null }
-    }
-
-    return { profile: null, error: apiResult.error }
   }
 
-  const profile = localGetProfileByEmail(email)
-  if (!profile) return { profile: null, error: '登録されていないメールアドレスです' }
-  if (password !== getLocalPassword(email)) {
-    return { profile: null, error: 'パスワードが正しくありません' }
-  }
-  return { profile, error: null }
-}
-
-function getLocalPassword(email: string): string {
-  switch (normalizeEmail(email)) {
-    case 'support-team@tre-pro.co.jp':
-    case 'admin@trepro.jp':
-      return 'trepro2026'
-    case 'asai@tre-pro.co.jp':
-      return 'asai2026'
-    case 'nakaguki@tre-pro.co.jp':
-      return 'nakakuki2026'
-    default:
-      return DEMO_PASSWORD
-  }
+  return { profile: localResult.profile, error: null }
 }
 
 export async function updateProgress(
   progressId: string,
   input: ProgressUpdateInput,
   updatedBy: string | null,
-): Promise<MemberProgress> {
+): Promise<{ progress: MemberProgress; savedTo: 'sheets' | 'local' }> {
   const config = await getConfig()
-  if (isSheetsApiConfigured(config)) {
-    return updateProgressViaApi(config, progressId, input, updatedBy)
+  if (isSheetsApiConfigured(config) && (await pingApi(config))) {
+    try {
+      const progress = await updateProgressViaApi(config, progressId, input, updatedBy)
+      return { progress, savedTo: 'sheets' }
+    } catch {
+      // fall through to local
+    }
   }
-  return localUpdateProgress(progressId, input, updatedBy)
+  const progress = localUpdateProgress(progressId, input, updatedBy)
+  return { progress, savedTo: 'local' }
 }
 
 export async function syncMemberTitles(
@@ -130,7 +99,7 @@ export async function syncMemberTitles(
   progresses: MemberProgress[],
 ): Promise<void> {
   const config = await getConfig()
-  if (isSheetsApiConfigured(config)) return
+  if (isSheetsApiConfigured(config) && (await pingApi(config))) return
 
   for (const member of members) {
     const passed = progresses.filter(
@@ -168,3 +137,6 @@ export function validateProgressUpdate(
   }
   return null
 }
+
+// テスト・互換用
+export { getLocalPassword }

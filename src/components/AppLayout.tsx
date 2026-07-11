@@ -24,6 +24,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const startPolling = useDataStore((s) => s.startPolling)
   const stopPolling = useDataStore((s) => s.stopPolling)
   const syncMode = useDataStore((s) => s.syncMode)
+  const syncMessage = useDataStore((s) => s.syncMessage)
   const location = useLocation()
 
   useEffect(() => {
@@ -110,7 +111,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {syncMode === 'local' && (
         <div className="bg-yellow-900/40 border-b border-yellow-500/40 text-yellow-200 text-sm text-center py-2 px-4">
           スプレッドシート未連携です。UIの変更はブラウザ内にのみ保存されます。
-          Apps Script の URL を public/config.json の syncApiUrl に設定すると双方向同期が有効になります。
+        </div>
+      )}
+      {syncMode === 'offline' && (
+        <div className="bg-red-900/40 border-b border-red-500/40 text-red-200 text-sm text-center py-2 px-4">
+          {syncMessage ?? 'シートAPIに接続できません。'}
+          {' '}Apps Script のデプロイで「アクセス: 全員」に設定して再デプロイしてください。
         </div>
       )}
       <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>

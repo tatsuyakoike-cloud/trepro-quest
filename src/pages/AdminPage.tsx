@@ -77,13 +77,14 @@ export function AdminPage() {
       setGameMsg(result.error)
       return
     }
+    const warningNote = result.warning ? `\n\n※ ${result.warning}` : ''
     if (result.leveledUp && result.newTitle && member) {
       setGameMsg(
-        `記録を保存しました。\n${member.name}は「${result.newTitle}」になった。`,
+        `記録を保存しました。\n${member.name}は「${result.newTitle}」になった。${warningNote}`,
       )
     } else {
       setGameMsg(
-        `記録を保存しました。\n${member?.name ?? ''}の冒険記録を更新しました。`,
+        `記録を保存しました。\n${member?.name ?? ''}の冒険記録を更新しました。${warningNote}`,
       )
     }
   }
